@@ -1346,6 +1346,101 @@
     }
 
 
+
+    /* ===========================================================
+       FINAL FIX 2026-05-16 v10
+       微調整
+       ・リアクション画面の「ホームに戻る」ボタンを小さくする
+       ・会話文を大きくして読みやすくする
+       ・誕生待ち画面など、宇宙背景上の黒文字を白〜淡い黄色にする
+       =========================================================== */
+
+    /* 宇宙背景の上に直接出る説明文を読みやすくする */
+    .screen .center > p,
+    .screen > p,
+    .screen .lead,
+    .screen .small{
+      color:#fff9cf !important;
+      text-shadow:
+        0 2px 9px rgba(24,14,58,.72),
+        0 0 16px rgba(255,255,255,.24) !important;
+    }
+
+    .screen .countdown{
+      color:#fff4a8 !important;
+      text-shadow:
+        0 2px 12px rgba(24,14,58,.78),
+        0 0 22px rgba(255,255,255,.46) !important;
+    }
+
+    /* 白いカードや吹き出しの中だけは濃い文字に戻す */
+    .speech-bubble p,
+    .card p,
+    .letter p,
+    .checkitem,
+    .choice,
+    button,
+    .btn,
+    input,
+    .pill{
+      color:var(--ink) !important;
+      text-shadow:none !important;
+    }
+
+    /* お世話中の会話文を少し大きくする */
+    body.care-one-screen .speech-bubble{
+      padding:10px 13px !important;
+      border-radius:17px !important;
+      margin:4px 0 8px !important;
+    }
+
+    body.care-one-screen .speech-label{
+      font-size:11px !important;
+      padding:3px 8px !important;
+      margin-bottom:5px !important;
+    }
+
+    body.care-one-screen .speech-bubble p{
+      font-size:15px !important;
+      line-height:1.55 !important;
+      font-weight:800 !important;
+      letter-spacing:.01em !important;
+    }
+
+    /* リアクション画面の「ホームに戻る」を控えめにする */
+    body.care-one-screen .center > button.primary,
+    body.care-one-screen .center > button.soft,
+    body.care-one-screen .center > button.dangerless{
+      min-height:38px !important;
+      padding:9px 20px !important;
+      font-size:14px !important;
+      border-radius:999px !important;
+      font-weight:800 !important;
+    }
+
+    /* リアクション画面でボタンが画面中央を取りすぎないようにする */
+    body.care-one-screen .center .pet-stage + .speech-bubble + button{
+      margin-top:2px !important;
+    }
+
+    @media (max-height:700px){
+      body.care-one-screen .speech-bubble{
+        padding:8px 11px !important;
+      }
+      body.care-one-screen .speech-bubble p{
+        font-size:14px !important;
+        line-height:1.45 !important;
+      }
+      body.care-one-screen .center > button.primary,
+      body.care-one-screen .center > button.soft,
+      body.care-one-screen .center > button.dangerless{
+        min-height:34px !important;
+        padding:7px 16px !important;
+        font-size:13px !important;
+      }
+    }
+
+
 </style>
 </head>
 <body>
@@ -1377,7 +1472,7 @@ const LOG_ENDPOINT = ""; // Google Apps ScriptのウェブアプリURL。入れ�
 const REMOTE_LOG_QUEUE_KEY = "osewa_4320n_remote_log_queue_v1";
 const STORAGE_KEY = "osewa_4320n_state_v5_multilingual";
 const LOG_KEY = "osewa_4320n_event_log_v5_multilingual";
-const ASSET_VERSION = "20260516_v9_mobile_one_screen"; // 画像を差し替えた時にブラウザの古いキャッシュを避けるための番号です。
+const ASSET_VERSION = "20260516_v10_text_button"; // 画像を差し替えた時にブラウザの古いキャッシュを避けるための番号です。
 const RESET_PASSWORD = "JA2026"; // 動作確認用リセットパスワード。必要ならここを変更します。
 const REQUIRED_ACTIONS_PER_DAY = 2;
 // 画像はGitHub上で以下の位置に置きます。
