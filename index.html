@@ -1697,9 +1697,12 @@ const LOG_ENDPOINT = ""; // Google Apps ScriptのウェブアプリURL。入れ�
 const REMOTE_LOG_QUEUE_KEY = "osewa_4320n_remote_log_queue_v1";
 const STORAGE_KEY = "osewa_4320n_state_v5_multilingual";
 const LOG_KEY = "osewa_4320n_event_log_v5_multilingual";
-const ASSET_VERSION = "20260516_v13_reaction_lower"; // 画像を差し替えた時にブラウザの古いキャッシュを避けるための番号です。
+const ASSET_VERSION = "20260516_v14_leave_and_return"; // 画像を差し替えた時にブラウザの古いキャッシュを避けるための番号です。
 const RESET_PASSWORD = "JA2026"; // 動作確認用リセットパスワード。必要ならここを変更します。
 const REQUIRED_ACTIONS_PER_DAY = 2;
+// 「また来るね」で離れてから、この時間を超えて戻ると少しさみしそうな姿になります。
+// 動作確認しやすいように初期値は60秒です。本番で長くする場合は 30 * 60 * 1000 などに変更できます。
+const AWAY_SAD_AFTER_MS = 60 * 1000;
 // 画像はGitHub上で以下の位置に置きます。
 // 例：public/assets/characters/cat_purple/happy.png
 // 例：public/assets/macarons/purple_macaron.png
@@ -2446,7 +2449,7 @@ const translations = {
     consentTitle:"同意確認", consentIntro:"すべて確認した場合だけ、ゲームを開始できます。", consentItems:["研究の目的と内容を確認しました。","ゲーム中に、死または消失に相当する場面が含まれることを理解しました。","その後、再生成された存在と関わる場面があることを理解しました。","悲しさ、さみしさ、違和感を覚える可能性があることを理解しました。","つらいと感じた場合は、いつでも途中でやめられることを理解しました。","ゲーム中の行動や質問紙回答が、個人が特定されない形で研究に使われることを理解しました。"], agreeStart:"同意してゲームを始める",
     macaronTitle:"マカロンを1つ選んでください", macaronDesc:"選んだマカロンから、キャラクターが生まれます。", selected:"選択", birthWaitTitle:"マカロンの中で、光がゆっくり動いています", waitDesc:"生まれるまで、少しだけ待ってください。", seconds:"秒", openLetter:"手紙を読む",
     letterTitle:"小さな手紙", letterText:"こんにちは。このマカロンの中には、これから生まれる{name}が眠っています。生まれたら、少しずつお世話をしてあげてください。ごはんを選んだり、お出かけしたり、なでたり、きれいにしてあげることができます。あなたとの時間が、{name}の毎日になります。", toBirth:"誕生を見守る",
-    birthTitle:"生まれました", birthDesc:"光の中から、{name}が現れました。", day:"日目", affection:"愛情メーター", actionsToday:"今日のお世話", requiredActions:"今日を終えるには、あと {n} 回お世話してください。", endToday:"今日のお世話を終える", food:"ごはん", outing:"お出かけ", clean:"きれいにする", petting:"なでる", done:"できました", returnHome:"ホームに戻る",
+    birthTitle:"生まれました", birthDesc:"光の中から、{name}が現れました。", day:"日目", affection:"愛情メーター", actionsToday:"今日のお世話", requiredActions:"今日を終えるには、あと {n} 回お世話してください。", endToday:"今日のお世話を終える", leaveForNow:"また来るね", awayTitle:"また来るね", awayText:"{name}は、画面の中であなたを待っています。", awaySadWaiting:"{name}は、少しさみしそうに待っています。", resumeCare:"戻ってお世話する", awaySadText:"少しさみしそうにしています。帰ってきたことには、すぐ気づいたようです。", awayShortText:"戻ってきたことに気づいて、安心したようです。", awayDuration:"離れていた時間：{time}", food:"ごはん", outing:"お出かけ", clean:"きれいにする", petting:"なでる", done:"できました", returnHome:"ホームに戻る",
     homeMsgHigh:["見つけてくれて、うれしそうです。","昨日の時間を、少し覚えているように見えます。","そばに来ると、小さく光ります。","また会えたことを、ゆっくり喜んでいるようです。"], homeMsgLow:["静かにこちらを見ています。","お世話を待っています。","小さく反応しました。","画面の中で、ゆっくり動いています。"],
     foodTitle:"ごはんを選んでください", foodChoices:["星のクッキー","月のスープ"], foodReactHigh:"うれしそうに食べています。小さな光がふわっと広がりました。", foodReactLow:"食べました。", outingTitle:"お出かけ先を選んでください", outingChoices:["星の丘","光の庭"], outingReactHigh:"一緒に歩いた時間を楽しんでいるようです。", outingReactLow:"お出かけしました。",
     cleanTitle:"きれいにしてあげてください", cleanDesc:"動いている💩の中から、指定された色だけをタップして片づけてください。", cleanComplete:"きれいになりました。", pettingTitle:"なでてください", pettingDesc:"{name}の近くをタッチ、またはドラッグするとハートが出ます。", pettingComplete:"やさしくなでました。",
@@ -2462,7 +2465,7 @@ const translations = {
     consentTitle:"Consent", consentIntro:"You can start only after confirming all items.", consentItems:["I have read the purpose and content of the study.","I understand that the game may include a scene corresponding to death or disappearance.","I understand that I will later interact with a regenerated being.","I understand that I may feel sadness, loneliness, or discomfort.","I understand that I may stop at any time.","I understand that game actions and survey responses may be used for research in a non-identifiable form."], agreeStart:"Agree and start",
     macaronTitle:"Choose one macaron", macaronDesc:"A character will be born from the macaron you choose.", selected:"Selected", birthWaitTitle:"A soft light is moving inside the macaron", waitDesc:"Please wait a little until birth.", seconds:"sec", openLetter:"Read the letter",
     letterTitle:"A small letter", letterText:"Hello. {name} is sleeping inside this macaron. When it is born, please take care of it little by little. You can choose food, go out, pet it, and keep it clean. The time with you will become {name}’s everyday life.", toBirth:"Watch the birth",
-    birthTitle:"It was born", birthDesc:"{name} appeared from the light.", day:"Day", affection:"Affection meter", actionsToday:"Care today", requiredActions:"Do {n} more care action(s) to finish today.", endToday:"Finish today", food:"Food", outing:"Go out", clean:"Clean", petting:"Pet", done:"Done", returnHome:"Back home",
+    birthTitle:"It was born", birthDesc:"{name} appeared from the light.", day:"Day", affection:"Affection meter", actionsToday:"Care today", requiredActions:"Do {n} more care action(s) to finish today.", endToday:"Finish today", leaveForNow:"See you later", awayTitle:"See you later", awayText:"{name} is waiting for you on the screen.", awaySadWaiting:"{name} looks a little lonely while waiting.", resumeCare:"Come back and care", awaySadText:"It looks a little lonely. But it seems to notice right away that you came back.", awayShortText:"It seems relieved that you came back.", awayDuration:"Time away: {time}", food:"Food", outing:"Go out", clean:"Clean", petting:"Pet", done:"Done", returnHome:"Back home",
     homeMsgHigh:["It looks happy that you found it.","It seems to remember a little of yesterday.","It softly glows when you come close.","It seems gently happy to meet you again."], homeMsgLow:["It quietly looks at you.","It is waiting for care.","It reacted slightly.","It moves slowly on the screen."],
     foodTitle:"Choose food", foodChoices:["Star cookie","Moon soup"], foodReactHigh:"It eats happily. A small light spreads softly.", foodReactLow:"It ate.", outingTitle:"Choose a place to go", outingChoices:["Star hill","Light garden"], outingReactHigh:"It seems to enjoy the time walking together.", outingReactLow:"You went out.",
     cleanTitle:"Clean it up", cleanDesc:"Tap only the moving poop with the target color.", cleanComplete:"All clean.", pettingTitle:"Pet gently", pettingDesc:"Touch or drag near {name} to make hearts appear.", pettingComplete:"You gently petted it.",
@@ -2478,7 +2481,7 @@ const translations = {
     consentTitle:"同意确认", consentIntro:"确认所有项目后才可以开始游戏。", consentItems:["我已确认研究目的与内容。","我理解游戏中可能包含相当于死亡或消失的场景。","我理解之后会与再生成的存在互动。","我理解可能会感到悲伤、寂寞或不适。","我理解可以随时中止。","我理解游戏行为和问卷回答会以无法识别个人的形式用于研究。"], agreeStart:"同意并开始游戏",
     macaronTitle:"请选择一个马卡龙", macaronDesc:"你选择的马卡龙里会诞生一个角色。", selected:"已选择", birthWaitTitle:"马卡龙中有柔和的光在移动", waitDesc:"请稍等，直到它诞生。", seconds:"秒", openLetter:"阅读信件",
     letterTitle:"一封小信", letterText:"你好。这个马卡龙里，睡着即将出生的{name}。出生后，请一点一点照顾它。你可以选择食物、外出、抚摸它，也可以帮它保持干净。与你在一起的时间，会成为{name}的每一天。", toBirth:"守候诞生",
-    birthTitle:"诞生了", birthDesc:"{name}从光中出现了。", day:"第", affection:"亲近度", actionsToday:"今天的照护", requiredActions:"还需要照护 {n} 次才能结束今天。", endToday:"结束今天的照护", food:"食物", outing:"外出", clean:"清理", petting:"抚摸", done:"完成", returnHome:"返回主页",
+    birthTitle:"诞生了", birthDesc:"{name}从光中出现了。", day:"第", affection:"亲近度", actionsToday:"今天的照护", requiredActions:"还需要照护 {n} 次才能结束今天。", endToday:"结束今天的照护", leaveForNow:"待会儿再来", awayTitle:"待会儿再来", awayText:"{name}正在屏幕里等你。", awaySadWaiting:"{name}等得有点寂寞。", resumeCare:"回来继续照护", awaySadText:"它看起来有点寂寞。不过，它好像马上发现你回来了。", awayShortText:"它发现你回来了，好像安心了一点。", awayDuration:"离开时间：{time}", food:"食物", outing:"外出", clean:"清理", petting:"抚摸", done:"完成", returnHome:"返回主页",
     homeMsgHigh:["它似乎很高兴被你发现。","它好像稍微记得昨天的时间。","你靠近时，它会轻轻发光。","它似乎温柔地高兴着再次见到你。"], homeMsgLow:["它静静地看着你。","它正在等待照护。","它轻轻反应了一下。","它在画面中慢慢移动。"],
     foodTitle:"请选择食物", foodChoices:["星星饼干","月亮汤"], foodReactHigh:"它开心地吃着，小小的光轻轻扩散。", foodReactLow:"它吃了。", outingTitle:"请选择外出去处", outingChoices:["星之丘","光之庭"], outingReactHigh:"它似乎享受一起散步的时间。", outingReactLow:"已经外出了。",
     cleanTitle:"帮它清理", cleanDesc:"请只点击指定颜色的移动便便。", cleanComplete:"变干净了。", pettingTitle:"请轻轻抚摸", pettingDesc:"触摸或拖动{name}附近，会出现爱心。", pettingComplete:"你轻轻抚摸了它。",
@@ -2575,7 +2578,7 @@ function getBeingAltText(){
 function replaceName(text){ return String(text).replaceAll("{name}", getBeingInlineName()); }
 
 function defaultState(){
-  return { language:null, research_id:null, screen:"01_language", consent:false, explanation_viewed:false, start_time:null, start_date:null, condition_id:null, identity_condition_id:null, macaron_color:null, character_id:null, character_name:"", day:1, affection:0, visit_count:0, dayActions:{}, dayComplete:{}, choiceSets:{}, regenerated:false, last_message_id:null, version:"implementation_assets_v2_twenty_choices_moving_poop" };
+  return { language:null, research_id:null, screen:"01_language", consent:false, explanation_viewed:false, start_time:null, start_date:null, condition_id:null, identity_condition_id:null, macaron_color:null, character_id:null, character_name:"", day:1, affection:0, visit_count:0, dayActions:{}, dayComplete:{}, choiceSets:{}, regenerated:false, away_start_time:null, away_from_day:null, away_from_actions:0, last_away_elapsed_ms:0, just_returned_sad:false, just_returned_short:false, last_message_id:null, version:"implementation_assets_v3_leave_and_return" };
 }
 function loadState(){ try{ return { ...defaultState(), ...(JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}) }; }catch(e){ return defaultState(); } }
 function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState)); updateStatus(); updateDevPanel(); }
@@ -2792,7 +2795,7 @@ function buildCareMemoryComment(){
   return interpolateLine(template, { day, value });
 }
 function screenShell(html, cls=""){
-  const oneScreenIds = ["09_day_home","10_food","11_outing","12_clean","13_petting"];
+  const oneScreenIds = ["09_day_home","10_food","11_outing","12_clean","13_petting","14_away"];
   document.body.classList.toggle("care-one-screen", oneScreenIds.includes(gameState.screen));
   document.getElementById("app").className = "screen " + cls;
   document.getElementById("app").innerHTML = html;
@@ -2817,6 +2820,7 @@ function render(){
     "11_outing": renderOuting,
     "12_clean": renderClean,
     "13_petting": renderPetting,
+    "14_away": renderAway,
     "14_day_complete": renderDayComplete,
     "15_before_disappearance": renderBeforeDisappearance,
     "16_disappearance": renderDisappearance,
@@ -3069,14 +3073,20 @@ function renderDayHome(){
   logEvent("day_visit", { day:gameState.day, visit_count:++gameState.visit_count }); saveState();
   const remaining = Math.max(0, REQUIRED_ACTIONS_PER_DAY - completedActionsCount());
   const endDisabled = remaining > 0 ? "disabled" : "";
-  const speech = buildHomeSpeech();
+  const returnedSad = !!gameState.just_returned_sad;
+  const returnedShort = !!gameState.just_returned_short;
+  const speech = returnedSad
+    ? { text:t("awaySadText"), kind:"away_sad", label:getSpeechLabel("normal") }
+    : returnedShort
+      ? { text:t("awayShortText"), kind:"away_return", label:getSpeechLabel("normal") }
+      : buildHomeSpeech();
   logEvent("character_line_displayed", { day:gameState.day, character_line:speech.text, speech_kind:speech.kind, persona_character_id:getPersonalityCharacterId() || "" });
   screenShell(`
     <div class="home-layout">
       <div class="center">
         ${sparkles()}
         <div class="pill">${esc(formatDayLabel(gameState.day))}</div>
-        <div class="pet-stage">${characterImg("happy")}</div>
+        <div class="pet-stage">${returnedSad ? characterImg("sad", "sad") : characterImg("happy")}</div>
       </div>
       <div>
         ${getBeingDisplayName() ? `<h2>${esc(getBeingDisplayName())}</h2>` : ""}
@@ -3089,9 +3099,17 @@ function renderDayHome(){
           <button onclick="go('12_clean')" class="soft"><span class="menu-icon">🫧</span>${esc(t("clean"))}${hasAction("poop_clean")?" ✓":""}</button>
           <button onclick="go('13_petting')" class="soft"><span class="menu-icon">🖐️</span>${esc(t("petting"))}${hasAction("petting")?" ✓":""}</button>
         </div>
-        <div class="row right" style="margin-top:16px"><button class="primary" ${endDisabled} onclick="completeCurrentDay()">${esc(t("endToday"))}</button></div>
+        <div class="row right" style="margin-top:16px">
+          <button class="soft" onclick="leaveForNow()">${esc(t("leaveForNow"))}</button>
+          <button class="primary" ${endDisabled} onclick="completeCurrentDay()">${esc(t("endToday"))}</button>
+        </div>
       </div>
     </div>`);
+  if(returnedSad || returnedShort){
+    gameState.just_returned_sad = false;
+    gameState.just_returned_short = false;
+    saveState();
+  }
 }
 function renderFood(){
   const set = getChoiceSet("food");
@@ -3236,6 +3254,67 @@ function finishPetting(){
   const comment = getActionComment("petting") || t("pettingComplete");
   markAction("petting", { day:gameState.day, petting_count:window._petCount || 0, heart_count:window._heartCount || 0, petting_time:now(), character_comment:comment });
   showReaction(comment);
+}
+function formatAwayDuration(ms){
+  const totalSec = Math.max(0, Math.floor((ms || 0) / 1000));
+  const min = Math.floor(totalSec / 60);
+  const sec = totalSec % 60;
+  const lang = gameState.language || "ja";
+  if(lang === "en") return min > 0 ? `${min} min ${sec} sec` : `${sec} sec`;
+  if(lang === "zh-CN") return min > 0 ? `${min}分${sec}秒` : `${sec}秒`;
+  return min > 0 ? `${min}分${sec}秒` : `${sec}秒`;
+}
+function leaveForNow(){
+  gameState.away_start_time = now();
+  gameState.away_from_day = gameState.day || 1;
+  gameState.away_from_actions = completedActionsCount();
+  gameState.screen = "14_away";
+  logEvent("leave_for_now", {
+    day:gameState.day,
+    away_start_time:gameState.away_start_time,
+    completed_actions:gameState.away_from_actions,
+    day_completed:!!gameState.dayComplete?.[String(gameState.day || 1)]
+  });
+  saveState();
+  render();
+}
+function returnFromAway(){
+  const startMs = Date.parse(gameState.away_start_time || "");
+  const elapsed = Number.isFinite(startMs) ? Math.max(0, Date.now() - startMs) : 0;
+  const becameSad = elapsed >= AWAY_SAD_AFTER_MS;
+  gameState.last_away_elapsed_ms = elapsed;
+  gameState.just_returned_sad = becameSad;
+  gameState.just_returned_short = !becameSad;
+  logEvent("return_from_away", {
+    day:gameState.day,
+    away_start_time:gameState.away_start_time || "",
+    away_return_time:now(),
+    away_elapsed_ms:elapsed,
+    away_elapsed_text:formatAwayDuration(elapsed),
+    away_sad:becameSad,
+    sad_threshold_ms:AWAY_SAD_AFTER_MS
+  });
+  gameState.away_start_time = null;
+  gameState.away_from_day = null;
+  gameState.away_from_actions = 0;
+  gameState.screen = "09_day_home";
+  saveState();
+  render();
+}
+function renderAway(){
+  if(!gameState.away_start_time){ gameState.away_start_time = now(); saveState(); }
+  const startMs = Date.parse(gameState.away_start_time || "");
+  const elapsed = Number.isFinite(startMs) ? Math.max(0, Date.now() - startMs) : 0;
+  const alreadySad = elapsed >= AWAY_SAD_AFTER_MS;
+  const timeText = t("awayDuration").replace("{time}", formatAwayDuration(elapsed));
+  screenShell(`
+    <div class="center">
+      <h2>${esc(t("awayTitle"))}</h2>
+      <p class="lead">${esc(replaceName(alreadySad ? t("awaySadWaiting") : t("awayText")))}</p>
+      <p class="small">${esc(timeText)}</p>
+      <div class="pet-stage">${alreadySad ? characterImg("sad", "sad smallish") : characterImg("sleep", "sleep smallish")}</div>
+      <button class="primary" onclick="returnFromAway()">${esc(t("resumeCare"))}</button>
+    </div>`);
 }
 function completeCurrentDay(){
   const d = gameState.day;
