@@ -1666,7 +1666,226 @@
     }
 
 
-</style>
+
+
+    /* ===========================================================
+       LETTER UI：マカロン誕生前の手紙画面を、封筒・便箋風にする
+       =========================================================== */
+    .screen.letter-screen{
+      width:min(1040px,100%) !important;
+      min-height:min(720px,calc(100svh - 36px)) !important;
+      display:flex !important;
+      flex-direction:column !important;
+      justify-content:center !important;
+      gap:18px !important;
+      padding:clamp(16px,3.6vw,34px) !important;
+    }
+
+    .letter-scene{
+      width:100%;
+      display:grid;
+      gap:clamp(14px,2.2vw,22px);
+      justify-items:center;
+    }
+
+    .letter-title{
+      margin:0 !important;
+      color:#ffeaa1 !important;
+      font-size:clamp(34px,7vw,62px) !important;
+      letter-spacing:.12em !important;
+      line-height:1.05 !important;
+      font-family:"Yu Mincho","Hiragino Mincho ProN","Yu Gothic",serif !important;
+      text-shadow:
+        0 3px 12px rgba(34,18,76,.82),
+        0 0 26px rgba(255,229,153,.58) !important;
+      position:relative;
+      padding-bottom:18px;
+    }
+
+    .letter-title::after{
+      content:"♡  ✦  ♡";
+      position:absolute;
+      left:50%;
+      bottom:-3px;
+      transform:translateX(-50%);
+      font-size:clamp(13px,2.2vw,18px);
+      letter-spacing:.55em;
+      color:rgba(255,232,172,.82);
+      text-shadow:0 0 12px rgba(255,232,172,.7);
+      white-space:nowrap;
+    }
+
+    .letter-card{
+      width:min(860px,94vw);
+      position:relative;
+      margin:0 auto;
+      padding:clamp(24px,4.8vw,56px) clamp(22px,5.4vw,70px);
+      border-radius:20px 20px 18px 18px;
+      background:
+        linear-gradient(135deg, rgba(255,252,242,.98), rgba(255,242,211,.94)),
+        repeating-linear-gradient(0deg, rgba(156,115,62,.06) 0 1px, transparent 1px 38px) !important;
+      border:1px solid rgba(227,190,119,.58) !important;
+      box-shadow:
+        0 24px 58px rgba(31,18,64,.30),
+        inset 0 0 0 7px rgba(255,255,255,.42),
+        inset 0 0 0 1px rgba(167,120,54,.14) !important;
+      color:#4c3b37 !important;
+      overflow:hidden;
+      -webkit-backdrop-filter:none !important;
+      backdrop-filter:none !important;
+    }
+
+    .letter-card::before{
+      content:"";
+      position:absolute;
+      top:0;
+      right:0;
+      width:min(230px,40vw);
+      height:min(150px,27vw);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.12), rgba(218,174,104,.20)),
+        linear-gradient(45deg, transparent 49.4%, rgba(196,144,71,.34) 50%, transparent 50.8%);
+      clip-path:polygon(0 0,100% 0,100% 100%);
+      border-left:1px solid rgba(189,137,67,.25);
+      pointer-events:none;
+    }
+
+    .letter-card::after{
+      content:"♡";
+      position:absolute;
+      top:clamp(42px,7vw,72px);
+      right:clamp(60px,10vw,112px);
+      width:54px;
+      height:54px;
+      display:grid;
+      place-items:center;
+      border-radius:999px;
+      color:rgba(255,255,255,.88);
+      font-size:25px;
+      background:radial-gradient(circle at 35% 28%, #f5d78b, #b98b3e 76%);
+      box-shadow:0 8px 14px rgba(100,60,18,.24), inset 0 0 0 4px rgba(255,255,255,.18);
+      pointer-events:none;
+    }
+
+    .letter-deco{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .letter-deco::before{
+      content:"✦  ✧";
+      position:absolute;
+      left:clamp(28px,5vw,54px);
+      top:clamp(26px,4vw,42px);
+      color:#d8a94f;
+      font-size:clamp(20px,3.2vw,30px);
+      letter-spacing:.35em;
+      opacity:.84;
+      text-shadow:0 0 12px rgba(255,221,145,.68);
+    }
+
+    .letter-deco::after{
+      content:"⌁⌁⌁";
+      position:absolute;
+      right:clamp(28px,4.8vw,60px);
+      top:clamp(106px,16vw,146px);
+      color:rgba(176,124,63,.36);
+      font-size:clamp(22px,3.3vw,34px);
+      letter-spacing:.12em;
+    }
+
+    .letter-body{
+      position:relative;
+      z-index:1;
+      max-width:760px;
+      margin:0 auto;
+      padding-top:8px;
+    }
+
+    .letter-line{
+      margin:0 !important;
+      padding:10px 0 10px !important;
+      border-bottom:1px dashed rgba(178,137,78,.18);
+      color:#4d403f !important;
+      text-shadow:none !important;
+      font-size:clamp(16px,2.25vw,23px) !important;
+      line-height:1.72 !important;
+      letter-spacing:.035em !important;
+      font-family:"Yu Mincho","Hiragino Mincho ProN","Yu Gothic",serif !important;
+      font-weight:600 !important;
+    }
+
+    .letter-line:first-child{
+      padding-top:0 !important;
+    }
+
+    .letter-heart{
+      position:absolute;
+      right:clamp(36px,6vw,74px);
+      bottom:clamp(24px,4vw,42px);
+      color:rgba(255,151,180,.46);
+      font-size:42px;
+      transform:rotate(-8deg);
+      pointer-events:none;
+      z-index:1;
+    }
+
+    .letter-button-row{
+      width:min(860px,94vw);
+      margin:0 auto;
+      justify-content:flex-end !important;
+    }
+
+    .letter-button-row .primary{
+      min-width:170px;
+      min-height:54px;
+      background:linear-gradient(135deg, rgba(255,255,255,.96), rgba(255,239,250,.96) 58%, rgba(232,248,255,.94)) !important;
+      border:1px solid rgba(255,255,255,.78) !important;
+      box-shadow:0 15px 30px rgba(33,18,64,.24) !important;
+      color:#2d2350 !important;
+      font-size:16px !important;
+    }
+
+    @media (max-width:720px){
+      .screen.letter-screen{
+        justify-content:flex-start !important;
+        min-height:calc(100svh - 18px) !important;
+        padding-top:18px !important;
+      }
+      .letter-title{
+        font-size:clamp(30px,11vw,44px) !important;
+      }
+      .letter-card{
+        width:96vw;
+        padding:26px 22px 38px;
+        border-radius:18px;
+      }
+      .letter-card::after{
+        width:42px;
+        height:42px;
+        font-size:19px;
+        top:38px;
+        right:54px;
+      }
+      .letter-deco::after{
+        display:none;
+      }
+      .letter-line{
+        font-size:16px !important;
+        line-height:1.68 !important;
+        padding:8px 0 !important;
+      }
+      .letter-button-row{
+        justify-content:center !important;
+      }
+      .letter-button-row .primary{
+        width:min(260px,88vw);
+      }
+    }
+
+  </style>
 </head>
 <body>
   <div id="toast" class="toast"></div>
@@ -2448,7 +2667,7 @@ const translations = {
     explanationTitle:"研究について", explanationText:"この研究では、ブラウザ型のお世話ゲームを通して、デジタルキャラクターとの関わり方を調べます。ゲーム中には、関わっていたデジタル存在の死または消失に相当する場面が含まれることがあります。また、その後に再生成された存在と関わる場面があります。悲しさ、さみしさ、違和感を覚える可能性があります。つらいと感じた場合は、いつでも途中でやめられます。ゲーム中に個人が特定される情報は入力しないでください。",
     consentTitle:"同意確認", consentIntro:"すべて確認した場合だけ、ゲームを開始できます。", consentItems:["研究の目的と内容を確認しました。","ゲーム中に、死または消失に相当する場面が含まれることを理解しました。","その後、再生成された存在と関わる場面があることを理解しました。","悲しさ、さみしさ、違和感を覚える可能性があることを理解しました。","つらいと感じた場合は、いつでも途中でやめられることを理解しました。","ゲーム中の行動や質問紙回答が、個人が特定されない形で研究に使われることを理解しました。"], agreeStart:"同意してゲームを始める",
     macaronTitle:"マカロンを1つ選んでください", macaronDesc:"選んだマカロンから、キャラクターが生まれます。", selected:"選択", birthWaitTitle:"マカロンの中で、光がゆっくり動いています", waitDesc:"生まれるまで、少しだけ待ってください。", seconds:"秒", openLetter:"手紙を読む",
-    letterTitle:"小さな手紙", letterText:"こんにちは。このマカロンの中には、これから生まれる{name}が眠っています。生まれたら、少しずつお世話をしてあげてください。ごはんを選んだり、お出かけしたり、なでたり、きれいにしてあげることができます。あなたとの時間が、{name}の毎日になります。", toBirth:"誕生を見守る",
+    letterTitle:"あなたへ", letterText:"こんにちは。このマカロンの中には、これから生まれる{name}が眠っています。生まれたら、少しずつお世話をしてあげてください。ごはんを選んだり、お出かけしたり、なでたり、きれいにしてあげることができます。あなたとの時間が、{name}の毎日になります。", toBirth:"誕生を見守る",
     birthTitle:"生まれました", birthDesc:"光の中から、{name}が現れました。", day:"日目", affection:"愛情メーター", actionsToday:"今日のお世話", requiredActions:"今日を終えるには、あと {n} 回お世話してください。", endToday:"今日のお世話を終える", leaveForNow:"また来るね", awayTitle:"また来るね", awayText:"{name}は、画面の中であなたを待っています。", awaySadWaiting:"{name}は、少しさみしそうに待っています。", resumeCare:"戻ってお世話する", awaySadText:"少しさみしそうにしています。帰ってきたことには、すぐ気づいたようです。", awayShortText:"戻ってきたことに気づいて、安心したようです。", awayDuration:"離れていた時間：{time}", food:"ごはん", outing:"お出かけ", clean:"きれいにする", petting:"なでる", done:"できました", returnHome:"ホームに戻る",
     homeMsgHigh:["見つけてくれて、うれしそうです。","昨日の時間を、少し覚えているように見えます。","そばに来ると、小さく光ります。","また会えたことを、ゆっくり喜んでいるようです。"], homeMsgLow:["静かにこちらを見ています。","お世話を待っています。","小さく反応しました。","画面の中で、ゆっくり動いています。"],
     foodTitle:"ごはんを選んでください", foodChoices:["星のクッキー","月のスープ"], foodReactHigh:"うれしそうに食べています。小さな光がふわっと広がりました。", foodReactLow:"食べました。", outingTitle:"お出かけ先を選んでください", outingChoices:["星の丘","光の庭"], outingReactHigh:"一緒に歩いた時間を楽しんでいるようです。", outingReactLow:"お出かけしました。",
@@ -2464,7 +2683,7 @@ const translations = {
     explanationTitle:"About this study", explanationText:"This browser-based care game studies how people interact with a digital character. The game may include a scene corresponding to death or disappearance of the digital being, followed by interaction with a regenerated being. You may feel sadness, loneliness, or discomfort. You may stop at any time. Do not enter personally identifying information during the game.",
     consentTitle:"Consent", consentIntro:"You can start only after confirming all items.", consentItems:["I have read the purpose and content of the study.","I understand that the game may include a scene corresponding to death or disappearance.","I understand that I will later interact with a regenerated being.","I understand that I may feel sadness, loneliness, or discomfort.","I understand that I may stop at any time.","I understand that game actions and survey responses may be used for research in a non-identifiable form."], agreeStart:"Agree and start",
     macaronTitle:"Choose one macaron", macaronDesc:"A character will be born from the macaron you choose.", selected:"Selected", birthWaitTitle:"A soft light is moving inside the macaron", waitDesc:"Please wait a little until birth.", seconds:"sec", openLetter:"Read the letter",
-    letterTitle:"A small letter", letterText:"Hello. {name} is sleeping inside this macaron. When it is born, please take care of it little by little. You can choose food, go out, pet it, and keep it clean. The time with you will become {name}’s everyday life.", toBirth:"Watch the birth",
+    letterTitle:"To you", letterText:"Hello. {name} is sleeping inside this macaron. When it is born, please take care of it little by little. You can choose food, go out, pet it, and keep it clean. The time with you will become {name}’s everyday life.", toBirth:"Watch the birth",
     birthTitle:"It was born", birthDesc:"{name} appeared from the light.", day:"Day", affection:"Affection meter", actionsToday:"Care today", requiredActions:"Do {n} more care action(s) to finish today.", endToday:"Finish today", leaveForNow:"See you later", awayTitle:"See you later", awayText:"{name} is waiting for you on the screen.", awaySadWaiting:"{name} looks a little lonely while waiting.", resumeCare:"Come back and care", awaySadText:"It looks a little lonely. But it seems to notice right away that you came back.", awayShortText:"It seems relieved that you came back.", awayDuration:"Time away: {time}", food:"Food", outing:"Go out", clean:"Clean", petting:"Pet", done:"Done", returnHome:"Back home",
     homeMsgHigh:["It looks happy that you found it.","It seems to remember a little of yesterday.","It softly glows when you come close.","It seems gently happy to meet you again."], homeMsgLow:["It quietly looks at you.","It is waiting for care.","It reacted slightly.","It moves slowly on the screen."],
     foodTitle:"Choose food", foodChoices:["Star cookie","Moon soup"], foodReactHigh:"It eats happily. A small light spreads softly.", foodReactLow:"It ate.", outingTitle:"Choose a place to go", outingChoices:["Star hill","Light garden"], outingReactHigh:"It seems to enjoy the time walking together.", outingReactLow:"You went out.",
@@ -2480,7 +2699,7 @@ const translations = {
     explanationTitle:"关于本研究", explanationText:"本研究通过浏览器中的照护游戏，了解人们如何与一个数字角色互动。游戏中可能包含相当于死亡或消失的场景，之后也会出现与再生成存在互动的场景。你可能会感到悲伤、寂寞或不适。感到不舒服时可以随时停止。游戏中请不要输入可识别个人的信息。",
     consentTitle:"同意确认", consentIntro:"确认所有项目后才可以开始游戏。", consentItems:["我已确认研究目的与内容。","我理解游戏中可能包含相当于死亡或消失的场景。","我理解之后会与再生成的存在互动。","我理解可能会感到悲伤、寂寞或不适。","我理解可以随时中止。","我理解游戏行为和问卷回答会以无法识别个人的形式用于研究。"], agreeStart:"同意并开始游戏",
     macaronTitle:"请选择一个马卡龙", macaronDesc:"你选择的马卡龙里会诞生一个角色。", selected:"已选择", birthWaitTitle:"马卡龙中有柔和的光在移动", waitDesc:"请稍等，直到它诞生。", seconds:"秒", openLetter:"阅读信件",
-    letterTitle:"一封小信", letterText:"你好。这个马卡龙里，睡着即将出生的{name}。出生后，请一点一点照顾它。你可以选择食物、外出、抚摸它，也可以帮它保持干净。与你在一起的时间，会成为{name}的每一天。", toBirth:"守候诞生",
+    letterTitle:"致你", letterText:"你好。这个马卡龙里，睡着即将出生的{name}。出生后，请一点一点照顾它。你可以选择食物、外出、抚摸它，也可以帮它保持干净。与你在一起的时间，会成为{name}的每一天。", toBirth:"守候诞生",
     birthTitle:"诞生了", birthDesc:"{name}从光中出现了。", day:"第", affection:"亲近度", actionsToday:"今天的照护", requiredActions:"还需要照护 {n} 次才能结束今天。", endToday:"结束今天的照护", leaveForNow:"待会儿再来", awayTitle:"待会儿再来", awayText:"{name}正在屏幕里等你。", awaySadWaiting:"{name}等得有点寂寞。", resumeCare:"回来继续照护", awaySadText:"它看起来有点寂寞。不过，它好像马上发现你回来了。", awayShortText:"它发现你回来了，好像安心了一点。", awayDuration:"离开时间：{time}", food:"食物", outing:"外出", clean:"清理", petting:"抚摸", done:"完成", returnHome:"返回主页",
     homeMsgHigh:["它似乎很高兴被你发现。","它好像稍微记得昨天的时间。","你靠近时，它会轻轻发光。","它似乎温柔地高兴着再次见到你。"], homeMsgLow:["它静静地看着你。","它正在等待照护。","它轻轻反应了一下。","它在画面中慢慢移动。"],
     foodTitle:"请选择食物", foodChoices:["星星饼干","月亮汤"], foodReactHigh:"它开心地吃着，小小的光轻轻扩散。", foodReactLow:"它吃了。", outingTitle:"请选择外出去处", outingChoices:["星之丘","光之庭"], outingReactHigh:"它似乎享受一起散步的时间。", outingReactLow:"已经外出了。",
@@ -3016,13 +3235,32 @@ function startCountdown(seconds, onDone){
     if(left <= 0){ clearInterval(countdownTimer); countdownTimer=null; onDone(); }
   },1000);
 }
+function letterLinesHtml(text){
+  const raw = String(text || "").trim();
+  const lang = gameState.language || "ja";
+  const parts = lang === "en"
+    ? (raw.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [raw])
+    : (raw.match(/[^。！？!?]+[。！？!?]+|[^。！？!?]+$/g) || [raw]);
+  return parts
+    .map(line => line.trim())
+    .filter(Boolean)
+    .map(line => `<p class="letter-line">${esc(line)}</p>`)
+    .join("");
+}
 function renderLetter(){
   if(!gameState.letter_opened){ gameState.letter_opened = now(); logEvent("letter_opened", { letter_opened:gameState.letter_opened }); saveState(); }
+  const letterHtml = letterLinesHtml(replaceName(t("letterText")));
   screenShell(`
-    <h2 class="center">${esc(t("letterTitle"))}</h2>
-    <div class="letter"><p>${esc(replaceName(t("letterText")))}</p></div>
-    <div class="row right"><button class="primary" onclick="closeLetter()">${esc(t("toBirth"))}</button></div>
-  `);
+    <section class="letter-scene" aria-label="letter">
+      <h2 class="letter-title">${esc(t("letterTitle"))}</h2>
+      <div class="letter-card">
+        <span class="letter-deco" aria-hidden="true"></span>
+        <div class="letter-body">${letterHtml}</div>
+        <span class="letter-heart" aria-hidden="true">♡</span>
+      </div>
+      <div class="row letter-button-row"><button class="primary" onclick="closeLetter()">${esc(t("toBirth"))}</button></div>
+    </section>
+  `, "letter-screen");
 }
 function closeLetter(){ gameState.letter_closed = now(); logEvent("letter_closed", { letter_closed:gameState.letter_closed }); saveState(); go("08_birth"); }
 function renderBirth(){
