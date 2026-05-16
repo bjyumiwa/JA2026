@@ -2351,6 +2351,62 @@
     }
 
 
+    /* ===========================================================
+       FIX：4・5日目の「なでる」後に戻れない問題への対処
+       リアクション画面の戻るボタンを常に押しやすい位置にする
+       =========================================================== */
+    .reaction-screen{
+      min-height:calc(100dvh - 150px);
+      display:grid !important;
+      grid-template-rows:minmax(0,1fr) auto auto !important;
+      gap:12px !important;
+      align-content:center !important;
+      overflow:auto !important;
+      padding-bottom:14px !important;
+    }
+
+    .reaction-screen .pet-stage{
+      min-height:180px !important;
+      max-height:300px !important;
+      margin:4px auto 10px !important;
+    }
+
+    .reaction-screen .speech-bubble{
+      margin:8px auto 8px !important;
+    }
+
+    .reaction-return-button{
+      position:sticky !important;
+      bottom:8px !important;
+      z-index:20 !important;
+      min-height:48px !important;
+      margin:8px auto 0 !important;
+      box-shadow:0 12px 24px rgba(31,18,64,.20) !important;
+    }
+
+    @media (min-width:980px){
+      body.admin-mode-active .reaction-screen{
+        min-height:calc(100dvh - 100px) !important;
+        padding:10px 8px 18px !important;
+      }
+
+      body.admin-mode-active .reaction-screen .pet-stage{
+        min-height:150px !important;
+        height:28dvh !important;
+        max-height:220px !important;
+        margin:0 auto 8px !important;
+      }
+
+      body.admin-mode-active .reaction-screen .speech-bubble{
+        margin:6px auto 6px !important;
+      }
+
+      body.admin-mode-active .reaction-return-button{
+        width:min(250px,88%) !important;
+      }
+    }
+
+
   </style>
 </head>
 <body>
@@ -3789,11 +3845,14 @@ function renderDayHome(){
   const endDisabled = remaining > 0 ? "disabled" : "";
   const returnedSad = !!gameState.just_returned_sad;
   const returnedShort = !!gameState.just_returned_short;
-  const speech = returnedSad
-    ? { text:t("awaySadText"), kind:"away_sad", label:getSpeechLabel("normal") }
-    : returnedShort
-      ? { text:t("awayShortText"), kind:"away_return", label:getSpeechLabel("normal") }
-      : buildHomeSpeech();
+  const reactionText = gameState.last_reaction_comment || "";
+  const speech = reactionText
+    ? { text:reactionText, kind:"reaction", label:getSpeechLabel("normal") }
+    : returnedSad
+      ? { text:t("awaySadText"), kind:"away_sad", label:getSpeechLabel("normal") }
+      : returnedShort
+        ? { text:t("awayShortText"), kind:"away_return", label:getSpeechLabel("normal") }
+        : buildHomeSpeech();
   logEvent("character_line_displayed", { day:gameState.day, character_line:speech.text, speech_kind:speech.kind, persona_character_id:getPersonalityCharacterId() || "" });
   screenShell(`
     <div class="home-layout">
@@ -3819,7 +3878,8 @@ function renderDayHome(){
         </div>
       </div>
     </div>`);
-  if(returnedSad || returnedShort){
+  if(reactionText || returnedSad || returnedShort){
+    gameState.last_reaction_comment = "";
     gameState.just_returned_sad = false;
     gameState.just_returned_short = false;
     saveState();
@@ -3867,12 +3927,27 @@ function chooseOuting(choice, setId=""){
   markAction("outing_choice", { day:gameState.day, outing_choice:choice, outing_choice_set_id:setId, outing_time:now(), character_comment:comment });
   showReaction(comment);
 }
+function returnToDayHome(){
+  if(countdownTimer) clearInterval(countdownTimer);
+  gameState.screen = "09_day_home";
+  saveState();
+  render();
+}
+
 function showReaction(text){
+  // 4日目・5日目の再生成後キャラでは、リアクション画面のまま
+  // 旧screen「13_petting」を保持すると、PC管理画面やスマホ幅表示で
+  // 戻るボタンが押しにくくなることがある。
+  // そこで、状態としては先にお世話ホームへ戻しておき、
+  // 表示だけ一時的にリアクション画面にする。
+  gameState.screen = "09_day_home";
+  saveState();
+
   screenShell(`
     <div class="center reaction-screen">
       <div class="pet-stage">${characterImg("happy","smallish")}</div>
       ${speechBubble(text)}
-      <button class="primary" onclick="go('09_day_home')">${esc(t("returnHome"))}</button>
+      <button type="button" class="primary reaction-return-button" onclick="returnToDayHome()">${esc(t("returnHome"))}</button>
     </div>`);
 }
 function getTapPoopText(key){
@@ -3938,9 +4013,12 @@ function renderPetting(){
       ${speechBubble(getActionComment("petting") || characterBehaviorLine())}
       <div id="hand" class="hand hidden">🖐️</div>
     </div>
-    <div class="right" style="margin-top:14px"><button id="petDone" class="primary" disabled onclick="finishPetting()">${esc(t("done"))}</button></div>
+    <div class="row right" style="margin-top:14px">
+      <button type="button" class="soft" onclick="returnToDayHome()">${esc(t("returnHome"))}</button>
+      <button id="petDone" class="primary" disabled onclick="finishPetting()">${esc(t("done"))}</button>
+    </div>
   `);
-  window._petCount = 0; window._heartCount = 0;
+  window._petCount = 0; window._heartCount = 0; window._pettingFinished = false;
   const area = document.getElementById("pettingArea");
   const hand = document.getElementById("hand");
   const handler = (ev) => {
@@ -3965,9 +4043,22 @@ function spawnHearts(area,x,y){
   }
 }
 function finishPetting(){
+  if(window._pettingFinished) return;
+  window._pettingFinished = true;
+
+  const doneBtn = document.getElementById("petDone");
+  if(doneBtn) doneBtn.disabled = true;
+
   const comment = getActionComment("petting") || t("pettingComplete");
   markAction("petting", { day:gameState.day, petting_count:window._petCount || 0, heart_count:window._heartCount || 0, petting_time:now(), character_comment:comment });
-  showReaction(comment);
+
+  // 「なでる」後にリアクション専用画面へ残ると、1日目から戻れないケースが出たため、
+  // なでるだけは完了後すぐにお世話ホームへ戻す。
+  // コメントはホーム画面の吹き出しで1回だけ表示する。
+  gameState.last_reaction_comment = comment;
+  gameState.screen = "09_day_home";
+  saveState();
+  render();
 }
 function formatAwayDuration(ms){
   const totalSec = Math.max(0, Math.floor((ms || 0) / 1000));
