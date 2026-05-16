@@ -1613,6 +1613,59 @@
       }
     }
 
+
+
+    /* ===========================================================
+       FINAL FIX 2026-05-16 v13
+       リアクション画面の位置調整
+       ・キャラクターを少し下げる
+       ・キャラクターと「ひとこと」欄の間を少し広げる
+       ・スマホ縦画面でもボタンが下に収まるようにする
+       =========================================================== */
+
+    body.care-one-screen .reaction-screen{
+      grid-template-rows:minmax(0,1fr) auto auto !important;
+      align-content:center !important;
+      gap:16px !important;
+      padding-top:22px !important;
+      padding-bottom:10px !important;
+    }
+
+    body.care-one-screen .reaction-screen .pet-stage{
+      height:36dvh !important;
+      max-height:270px !important;
+      margin:18px 0 24px !important;
+      padding:22px 0 4px !important;
+      transform:translateY(18px) !important;
+    }
+
+    body.care-one-screen .reaction-screen .speech-bubble{
+      margin:16px auto 4px !important;
+    }
+
+    body.care-one-screen .reaction-screen > button{
+      margin-top:2px !important;
+    }
+
+    @media (max-height:700px){
+      body.care-one-screen .reaction-screen{
+        gap:12px !important;
+        padding-top:14px !important;
+        padding-bottom:8px !important;
+      }
+      body.care-one-screen .reaction-screen .pet-stage{
+        height:33dvh !important;
+        max-height:230px !important;
+        margin:12px 0 18px !important;
+        padding-top:18px !important;
+        transform:translateY(14px) !important;
+      }
+      body.care-one-screen .reaction-screen .speech-bubble{
+        margin:12px auto 2px !important;
+      }
+    }
+
+
 </style>
 </head>
 <body>
@@ -1644,7 +1697,7 @@ const LOG_ENDPOINT = ""; // Google Apps ScriptのウェブアプリURL。入れ�
 const REMOTE_LOG_QUEUE_KEY = "osewa_4320n_remote_log_queue_v1";
 const STORAGE_KEY = "osewa_4320n_state_v5_multilingual";
 const LOG_KEY = "osewa_4320n_event_log_v5_multilingual";
-const ASSET_VERSION = "20260516_v11_reaction_center"; // 画像を差し替えた時にブラウザの古いキャッシュを避けるための番号です。
+const ASSET_VERSION = "20260516_v13_reaction_lower"; // 画像を差し替えた時にブラウザの古いキャッシュを避けるための番号です。
 const RESET_PASSWORD = "JA2026"; // 動作確認用リセットパスワード。必要ならここを変更します。
 const REQUIRED_ACTIONS_PER_DAY = 2;
 // 画像はGitHub上で以下の位置に置きます。
