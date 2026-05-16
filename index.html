@@ -1441,6 +1441,127 @@
     }
 
 
+
+    /* ===========================================================
+       FINAL FIX 2026-05-16 v11
+       リアクション画面の微調整
+       ・飛び跳ねても画面上にはみ出しにくいように、ジャンプ量を控えめにする
+       ・キャラクターを中央寄りに置く
+       ・キャラクターと「ひとこと」欄の間に余白を作る
+       =========================================================== */
+
+    body.care-one-screen .reaction-screen{
+      height:100% !important;
+      min-height:0 !important;
+      display:grid !important;
+      grid-template-rows:minmax(0,1fr) auto auto !important;
+      align-items:center !important;
+      justify-items:center !important;
+      gap:12px !important;
+      overflow:hidden !important;
+      padding-top:8px !important;
+    }
+
+    body.care-one-screen .reaction-screen .pet-stage{
+      width:100% !important;
+      min-height:0 !important;
+      height:34dvh !important;
+      max-height:260px !important;
+      margin:0 0 12px !important;
+      padding:16px 0 8px !important;
+      display:grid !important;
+      place-items:center !important;
+      overflow:visible !important;
+    }
+
+    body.care-one-screen .reaction-screen .pet-img,
+    body.care-one-screen .reaction-screen .pet-img.smallish,
+    body.care-one-screen .reaction-screen .pet-img.char-cat_purple,
+    body.care-one-screen .reaction-screen .pet-img.char-lizard_green,
+    body.care-one-screen .reaction-screen .pet-img.char-seal_gray,
+    body.care-one-screen .reaction-screen .pet-img.char-kangaroo_blue,
+    body.care-one-screen .reaction-screen .pet-img.char-rabbit_pink,
+    body.care-one-screen .reaction-screen .pet-img.char-penguin_yellow{
+      max-width:min(250px,56vw) !important;
+      max-height:min(190px,28dvh) !important;
+    }
+
+    body.care-one-screen .reaction-screen .speech-bubble{
+      width:min(620px,86vw) !important;
+      margin:4px auto 2px !important;
+      padding:11px 15px !important;
+    }
+
+    body.care-one-screen .reaction-screen .speech-bubble p{
+      font-size:15px !important;
+      line-height:1.55 !important;
+    }
+
+    body.care-one-screen .reaction-screen > button{
+      margin-top:0 !important;
+      min-height:34px !important;
+      padding:7px 17px !important;
+      font-size:13px !important;
+      opacity:.94 !important;
+    }
+
+    /* うさぎ・カンガルーなどの上下動を、リアクション画面では控えめにする */
+    body.care-one-screen .reaction-screen .pet-motion-rabbit{
+      animation:rabbitContainedHop 3.8s ease-in-out infinite !important;
+    }
+    body.care-one-screen .reaction-screen .pet-motion-kangaroo{
+      animation:kangarooContainedBoing 3.1s cubic-bezier(.25,.9,.3,1) infinite !important;
+    }
+
+    @keyframes rabbitContainedHop{
+      0%,26%{transform:translateY(8px) rotate(0)}
+      31%{transform:translateY(-12px) rotate(-2deg)}
+      37%{transform:translateY(8px) rotate(1deg)}
+      43%,68%{transform:translateY(8px) rotate(0)}
+      73%{transform:translateY(-12px) rotate(2deg)}
+      79%{transform:translateY(8px) rotate(-1deg)}
+      100%{transform:translateY(8px) rotate(0)}
+    }
+
+    @keyframes kangarooContainedBoing{
+      0%,100%{transform:translateY(8px) scale(1) rotate(0)}
+      12%{transform:translateY(12px) scaleX(1.04) scaleY(.94)}
+      28%{transform:translateY(-18px) scaleX(.96) scaleY(1.07) rotate(-2deg)}
+      42%{transform:translateY(8px) scaleX(1.04) scaleY(.94) rotate(1deg)}
+      56%{transform:translateY(-8px) scale(1) rotate(1deg)}
+      70%{transform:translateY(8px) scale(1) rotate(0)}
+      84%{transform:translateY(-14px) scaleX(.98) scaleY(1.04) rotate(2deg)}
+    }
+
+    @media (max-height:700px){
+      body.care-one-screen .reaction-screen{
+        gap:9px !important;
+        padding-top:2px !important;
+      }
+      body.care-one-screen .reaction-screen .pet-stage{
+        height:31dvh !important;
+        max-height:220px !important;
+        margin-bottom:10px !important;
+        padding-top:12px !important;
+      }
+      body.care-one-screen .reaction-screen .pet-img,
+      body.care-one-screen .reaction-screen .pet-img.smallish,
+      body.care-one-screen .reaction-screen .pet-img.char-cat_purple,
+      body.care-one-screen .reaction-screen .pet-img.char-lizard_green,
+      body.care-one-screen .reaction-screen .pet-img.char-seal_gray,
+      body.care-one-screen .reaction-screen .pet-img.char-kangaroo_blue,
+      body.care-one-screen .reaction-screen .pet-img.char-rabbit_pink,
+      body.care-one-screen .reaction-screen .pet-img.char-penguin_yellow{
+        max-width:min(225px,54vw) !important;
+        max-height:min(165px,25dvh) !important;
+      }
+      body.care-one-screen .reaction-screen .speech-bubble p{
+        font-size:14px !important;
+        line-height:1.45 !important;
+      }
+    }
+
+
 </style>
 </head>
 <body>
@@ -1472,7 +1593,7 @@ const LOG_ENDPOINT = ""; // Google Apps ScriptのウェブアプリURL。入れ�
 const REMOTE_LOG_QUEUE_KEY = "osewa_4320n_remote_log_queue_v1";
 const STORAGE_KEY = "osewa_4320n_state_v5_multilingual";
 const LOG_KEY = "osewa_4320n_event_log_v5_multilingual";
-const ASSET_VERSION = "20260516_v10_text_button"; // 画像を差し替えた時にブラウザの古いキャッシュを避けるための番号です。
+const ASSET_VERSION = "20260516_v11_reaction_center"; // 画像を差し替えた時にブラウザの古いキャッシュを避けるための番号です。
 const RESET_PASSWORD = "JA2026"; // 動作確認用リセットパスワード。必要ならここを変更します。
 const REQUIRED_ACTIONS_PER_DAY = 2;
 // 画像はGitHub上で以下の位置に置きます。
@@ -2912,7 +3033,7 @@ function chooseOuting(choice, setId=""){
 }
 function showReaction(text){
   screenShell(`
-    <div class="center">
+    <div class="center reaction-screen">
       <div class="pet-stage">${characterImg("happy","smallish")}</div>
       ${speechBubble(text)}
       <button class="primary" onclick="go('09_day_home')">${esc(t("returnHome"))}</button>
