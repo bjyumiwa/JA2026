@@ -4347,6 +4347,26 @@ function adminFillCurrentDayActions(){
   render();
 }
 
+
+function getConditionLabel(id){
+  const labels = {
+    C1:"C1（関与促進・状態継承）",
+    C2:"C2（関与促進・新規生成）",
+    C3:"C3（関与抑制・状態継承）",
+    C4:"C4（関与抑制・新規生成）"
+  };
+  return labels[id] || id || "-";
+}
+
+function getIdentityConditionLabel(id){
+  const labels = {
+    A1:"A1（容姿同じ・動作違う）",
+    A2:"A2（容姿違う・動作と語尾同じ）",
+    A3:"A3（容姿違う・動作と記録あり）"
+  };
+  return labels[id] || id || "-";
+}
+
 function buildAdminSummary(){
   const counts = {};
   const dayCounts = {};
@@ -4369,7 +4389,9 @@ function buildAdminSummary(){
     screen: gameState.screen || "",
     day: gameState.day || "",
     condition_id: gameState.condition_id || "",
+    condition_label: getConditionLabel(gameState.condition_id),
     identity_condition_id: gameState.identity_condition_id || "",
+    identity_condition_label: getIdentityConditionLabel(gameState.identity_condition_id),
     original_character_id: gameState.character_id || "",
     display_character_id: getDisplayCharacterId() || "",
     motion_character_id: getMotionCharacterId() || "",
@@ -4396,8 +4418,8 @@ function showAdminSummary(){
     ["ログ件数", `${s.total}件`],
     ["操作ログ推定", `${s.actionCount}件`],
     ["訪問回数", `${s.visitCount}回`],
-    ["実験条件", s.condition_id || "-"],
-    ["再生成条件", s.identity_condition_id || "-"],
+    ["実験条件", s.condition_label || s.condition_id || "-"],
+    ["再生成条件", s.identity_condition_label || s.identity_condition_id || "-"],
     ["元キャラ", s.original_character_id || "-"],
     ["表示キャラ", s.display_character_id || "-"],
     ["動作キャラ", s.motion_character_id || "-"],
@@ -4465,8 +4487,8 @@ function adminDesktopWorkbenchHtml(){
         <div class="admin-kpi-grid">
           <div class="admin-kpi"><b>現在</b><span>${esc(String(s.day || "-"))}日目</span></div>
           <div class="admin-kpi"><b>ログ</b><span>${esc(String(s.total))}件</span></div>
-          <div class="admin-kpi"><b>条件</b><span>${esc(s.condition_id || "-")}</span></div>
-          <div class="admin-kpi"><b>再生成</b><span>${esc(s.identity_condition_id || "-")}</span></div>
+          <div class="admin-kpi"><b>条件</b><span>${esc(s.condition_label || s.condition_id || "-")}</span></div>
+          <div class="admin-kpi"><b>再生成</b><span>${esc(s.identity_condition_label || s.identity_condition_id || "-")}</span></div>
           <div class="admin-kpi"><b>表示キャラ</b><span>${esc(s.display_character_id || "-")}</span></div>
           <div class="admin-kpi"><b>動作キャラ</b><span>${esc(s.motion_character_id || "-")}</span></div>
         </div>
@@ -4493,9 +4515,9 @@ function adminDesktopWorkbenchHtml(){
 
         <h3>条件固定</h3>
         <div class="admin-action-grid">
-          <button class="admin-small" onclick="setIdentityCondition('A1')">条件①</button>
-          <button class="admin-small" onclick="setIdentityCondition('A2')">条件②</button>
-          <button class="admin-small" onclick="setIdentityCondition('A3')">条件③</button>
+          <button class="admin-small" onclick="setIdentityCondition('A1')">A1（容姿同じ・動作違う）</button>
+          <button class="admin-small" onclick="setIdentityCondition('A2')">A2（容姿違う・動作と語尾同じ）</button>
+          <button class="admin-small" onclick="setIdentityCondition('A3')">A3（容姿違う・動作と記録あり）</button>
           <button class="admin-danger" onclick="resetGame()">リセット</button>
         </div>
 
@@ -4558,7 +4580,7 @@ function updateDevPanel(){
       <div class="admin-mini-info">
         <div>画面：${esc(s.screen || "-")}</div>
         <div>ID：${esc(s.research_id || "-")}</div>
-        <div>条件：${esc(s.condition_id || "-")} / ${esc(s.identity_condition_id || "-")}</div>
+        <div>条件：${esc(s.condition_label || s.condition_id || "-")} / ${esc(s.identity_condition_label || s.identity_condition_id || "-")}</div>
       </div>
 
       <div class="admin-mini-grid">
@@ -4572,9 +4594,9 @@ function updateDevPanel(){
         <button onclick="showLogPreview()">ログを見る</button>
         <button onclick="downloadLog('csv')">CSV出力</button>
         <button onclick="downloadLog('json')">JSON出力</button>
-        <button class="admin-small" onclick="setIdentityCondition('A1')">条件①</button>
-        <button class="admin-small" onclick="setIdentityCondition('A2')">条件②</button>
-        <button class="admin-small" onclick="setIdentityCondition('A3')">条件③</button>
+        <button class="admin-small" onclick="setIdentityCondition('A1')">A1（容姿同じ・動作違う）</button>
+        <button class="admin-small" onclick="setIdentityCondition('A2')">A2（容姿違う・動作と語尾同じ）</button>
+        <button class="admin-small" onclick="setIdentityCondition('A3')">A3（容姿違う・動作と記録あり）</button>
         <button class="admin-danger" onclick="resetGame()">リセット</button>
       </div>
     </details>`;
