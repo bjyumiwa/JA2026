@@ -1957,6 +1957,191 @@
       }
     }
 
+    /* ===========================================================
+       ADMIN DASHBOARD FIX 2026-05-16
+       ?admin=1 のとき、画面中央に管理者確認モードを明確に表示する
+       =========================================================== */
+    body.admin-mode-active .app{
+      width:min(1100px,100%) !important;
+      padding:12px 14px 130px !important;
+    }
+
+    body.admin-mode-active .topbar{
+      position:sticky;
+      top:0;
+      z-index:35;
+      margin:0 0 10px !important;
+      padding:8px 10px !important;
+      border-radius:18px;
+      background:rgba(255,255,255,.78);
+      border:1px solid rgba(255,255,255,.66);
+      -webkit-backdrop-filter:blur(10px);
+      backdrop-filter:blur(10px);
+      box-shadow:0 10px 24px rgba(25,18,65,.16);
+    }
+
+    body.admin-mode-active .brand,
+    body.admin-mode-active .brand .small{
+      color:#2d2350 !important;
+      text-shadow:none !important;
+      opacity:1 !important;
+    }
+
+    body.admin-mode-active #app.screen.admin-screen{
+      min-height:calc(100dvh - 175px) !important;
+      overflow:visible !important;
+      padding:clamp(14px,3vw,28px) !important;
+    }
+
+    .admin-dashboard{
+      width:min(980px,96vw);
+      margin:0 auto;
+      display:grid;
+      gap:14px;
+    }
+
+    .admin-hero{
+      background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(255,245,252,.88) 55%,rgba(238,248,255,.88));
+      border:2px solid rgba(255,255,255,.82);
+      border-radius:28px;
+      padding:clamp(18px,3vw,30px);
+      box-shadow:0 18px 42px rgba(25,18,65,.20);
+      color:#2d2350;
+      -webkit-backdrop-filter:blur(14px);
+      backdrop-filter:blur(14px);
+    }
+
+    .admin-hero h1,
+    .admin-hero h2,
+    .admin-hero p{
+      color:#2d2350 !important;
+      text-shadow:none !important;
+    }
+
+    .admin-hero h1{
+      margin:0 0 8px !important;
+      font-size:clamp(25px,4vw,40px) !important;
+      line-height:1.15 !important;
+    }
+
+    .admin-hero p{
+      margin:6px 0 !important;
+      line-height:1.7 !important;
+    }
+
+    .admin-warning{
+      padding:10px 13px;
+      border-radius:16px;
+      background:rgba(255,247,210,.88);
+      border:1px solid rgba(232,190,80,.45);
+      color:#5b4312 !important;
+      font-weight:800;
+    }
+
+    .admin-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .admin-card{
+      background:rgba(255,255,255,.82);
+      border:1px solid rgba(255,255,255,.72);
+      border-radius:20px;
+      padding:13px;
+      box-shadow:0 8px 18px rgba(25,18,65,.10);
+      color:#2d2350;
+    }
+
+    .admin-card b{
+      display:block;
+      font-size:12px;
+      color:#7b6b90;
+      margin-bottom:4px;
+    }
+
+    .admin-card span{
+      font-size:15px;
+      font-weight:900;
+      color:#2d2350;
+      overflow-wrap:anywhere;
+    }
+
+    .admin-actions{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:9px;
+    }
+
+    .admin-actions button{
+      min-height:48px !important;
+      border-radius:16px !important;
+      padding:9px 10px !important;
+      font-size:13px !important;
+      font-weight:900 !important;
+      color:#2d2350 !important;
+      background:rgba(255,255,255,.86) !important;
+      border:1px solid rgba(255,255,255,.74) !important;
+      box-shadow:0 8px 18px rgba(25,18,65,.12) !important;
+      text-shadow:none !important;
+    }
+
+    .admin-actions button.admin-main{
+      background:linear-gradient(135deg,#ffe5f2,#e7f6ff) !important;
+    }
+
+    .admin-actions button.admin-danger{
+      background:linear-gradient(135deg,#fff2e6,#ffe9e9) !important;
+    }
+
+    .admin-mini-note{
+      font-size:12px;
+      line-height:1.65;
+      color:#645576 !important;
+      text-shadow:none !important;
+    }
+
+    .dev-panel{
+      z-index:80 !important;
+      max-height:34dvh;
+      overflow:auto;
+      justify-content:flex-start !important;
+      border-radius:18px !important;
+    }
+
+    .dev-panel::before{
+      content:"管理者メニュー";
+      font-size:12px;
+      font-weight:900;
+      color:#2d2350;
+      padding:6px 9px;
+      border-radius:999px;
+      background:#fff6c9;
+      border:1px solid rgba(232,190,80,.45);
+    }
+
+    @media(max-width:760px){
+      body.admin-mode-active .app{
+        padding-bottom:170px !important;
+      }
+      .admin-grid{
+        grid-template-columns:1fr;
+      }
+      .admin-actions{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+      .admin-actions button{
+        font-size:12px !important;
+      }
+      .dev-panel{
+        left:6px !important;
+        right:6px !important;
+        bottom:6px !important;
+        max-height:38dvh;
+      }
+    }
+
+
   </style>
 </head>
 <body>
@@ -3121,6 +3306,7 @@ function sparkles(){ return `<span class="sparkle"></span><span class="sparkle">
 function render(){
   const s = gameState.screen || "01_language";
   const map = {
+    "00_admin_home": renderAdminHome,
     "01_language": renderLanguage,
     "02_research_id": renderResearchId,
     "03_explanation": renderExplanation,
@@ -3145,6 +3331,74 @@ function render(){
     "20_end": renderEnd
   };
   (map[s] || renderLanguage)();
+}
+
+
+function renderAdminHome(){
+  if(!DEV_MODE){
+    renderLanguage();
+    return;
+  }
+  adminEnsureTestState();
+  document.body.classList.add("admin-mode-active");
+  const summary = buildAdminSummary();
+  const surveyMark = isSurveyUrlReady() ? "設定済み" : "未設定";
+  const logMark = isLogEndpointReady() ? "設定済み" : "未設定";
+  const identityLabel = IDENTITY_CONDITIONS[gameState.identity_condition_id]?.label || "";
+  screenShell(`
+    <section class="admin-dashboard">
+      <div class="admin-hero">
+        <h1>管理者確認モード</h1>
+        <p class="admin-warning">この画面は <b>?admin=1</b> が付いたときだけ表示されます。参加者用URLでは表示されません。</p>
+        <p>ここから、3日目の消失、再生成、4日目・5日目、最終アンケート、ログ集計をすぐ確認できます。</p>
+      </div>
+
+      <div class="admin-grid">
+        <div class="admin-card"><b>現在の画面</b><span>${esc(gameState.screen)}</span></div>
+        <div class="admin-card"><b>現在の日数</b><span>${esc(String(gameState.day || 1))}日目</span></div>
+        <div class="admin-card"><b>ログ件数</b><span>${esc(String(event_log.length))}件</span></div>
+        <div class="admin-card"><b>研究ID</b><span>${esc(gameState.research_id || "-")}</span></div>
+        <div class="admin-card"><b>実験条件</b><span>${esc(gameState.condition_id || "-")}</span></div>
+        <div class="admin-card"><b>再生成条件</b><span>${esc(gameState.identity_condition_id || "-")} ${esc(identityLabel)}</span></div>
+        <div class="admin-card"><b>フォームURL</b><span>${esc(surveyMark)}</span></div>
+        <div class="admin-card"><b>Sheetsログ連携</b><span>${esc(logMark)}</span></div>
+        <div class="admin-card"><b>到達状況</b><span>消失:${summary.disappearance_reached ? "済" : "未"} / 再生成:${summary.regeneration_reached ? "済" : "未"}</span></div>
+      </div>
+
+      <div class="admin-hero">
+        <h2>すぐ確認する</h2>
+        <div class="admin-actions">
+          <button class="admin-main" onclick="adminStartTest()">テスト開始</button>
+          <button onclick="adminJumpDay(1)">1日目</button>
+          <button onclick="adminJumpDay(2)">2日目</button>
+          <button onclick="adminJumpDay(3)">3日目</button>
+          <button class="admin-danger" onclick="adminJumpScreen('15_before_disappearance',3)">3日目終了</button>
+          <button class="admin-danger" onclick="adminJumpScreen('16_disappearance',3)">消失画面</button>
+          <button class="admin-main" onclick="adminJumpScreen('18_regeneration',4)">再生成画面</button>
+          <button onclick="adminJumpDay(4)">4日目</button>
+          <button onclick="adminJumpDay(5)">5日目</button>
+          <button class="admin-main" onclick="adminJumpScreen('19_survey_transition',5)">最終アンケート</button>
+          <button onclick="showAdminSummary()">ログ集計</button>
+          <button onclick="showLogPreview()">ログ確認</button>
+          <button onclick="downloadLog('csv')">CSV出力</button>
+          <button onclick="downloadLog('json')">JSON出力</button>
+          <button onclick="adminSetSurveyUrl()">フォームURL設定</button>
+          <button onclick="resetGame()">リセット</button>
+        </div>
+        <p class="admin-mini-note">「今日の世話OK」や「条件固定」は、画面下の管理者メニューにも残しています。管理者メニューが邪魔な場合でも、この中央画面だけで一通り確認できます。</p>
+      </div>
+
+      <div class="admin-hero">
+        <h2>条件固定</h2>
+        <div class="admin-actions">
+          <button onclick="setIdentityCondition('A1')">① 容姿同じ・動作違う</button>
+          <button onclick="setIdentityCondition('A2')">② 容姿違う・動作同じ</button>
+          <button onclick="setIdentityCondition('A3')">③ 容姿違う・動作同じ・記録あり</button>
+          <button onclick="adminFillCurrentDayActions()">今日の世話OK</button>
+        </div>
+      </div>
+    </section>
+  `, "admin-screen");
 }
 
 function renderLanguage(){
@@ -3943,6 +4197,7 @@ function updateDevPanel(){
   const logMark = isLogEndpointReady() ? "Sheets連携OK" : "Sheets未連携";
   panel.innerHTML = `
     <span>ADMIN / screen:${esc(gameState.screen)} / day:${esc(gameState.day || "-")} / log:${event_log.length} / ${esc(surveyMark)} / ${esc(logMark)}</span>
+    <button onclick="go('00_admin_home')">管理者ホーム</button>
     <button onclick="adminStartTest()">テスト開始</button>
     <button onclick="adminFillCurrentDayActions()">今日の世話OK</button>
     <button onclick="adminCompleteToday()">今日を完了</button>
@@ -4065,10 +4320,22 @@ function resetGame(){
 
 // 初期化：同意前に本編へ進めないよう、状態を確認して画面を補正します。
 (function init(){
-  if(!gameState.language) gameState.screen = "01_language";
-  else if(!gameState.research_id) gameState.screen = "02_research_id";
-  else if(!gameState.explanation_viewed) gameState.screen = "03_explanation";
-  else if(!gameState.consent) gameState.screen = "04_consent";
+  document.body.classList.toggle("admin-mode-active", !!ADMIN_MODE);
+
+  if(ADMIN_MODE){
+    adminEnsureTestState();
+    // 管理者URLで開いたときは、通常の参加者フローではなく、
+    // まず管理者確認ダッシュボードを表示します。
+    gameState.screen = "00_admin_home";
+    saveState();
+  }else{
+    document.body.classList.remove("admin-mode-active");
+    if(!gameState.language) gameState.screen = "01_language";
+    else if(!gameState.research_id) gameState.screen = "02_research_id";
+    else if(!gameState.explanation_viewed) gameState.screen = "03_explanation";
+    else if(!gameState.consent) gameState.screen = "04_consent";
+  }
+
   flushRemoteLogQueue();
   render();
 })();
