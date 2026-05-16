@@ -2438,7 +2438,7 @@ const LOG_ENDPOINT = ""; // Google Apps ScriptのウェブアプリURL。入れ�
 const REMOTE_LOG_QUEUE_KEY = "osewa_4320n_remote_log_queue_v1";
 const STORAGE_KEY = "osewa_4320n_state_v5_multilingual";
 const LOG_KEY = "osewa_4320n_event_log_v5_multilingual";
-const ASSET_VERSION = "20260516_v14_leave_and_return"; // 画像を差し替えた時にブラウザの古いキャッシュを避けるための番号です。
+const ASSET_VERSION = "20260516_v16_20_common_choices_fixed"; // 画像を差し替えた時にブラウザの古いキャッシュを避けるための番号です。
 const RESET_PASSWORD = "JA2026"; // 動作確認用リセットパスワード。必要ならここを変更します。
 const REQUIRED_ACTIONS_PER_DAY = 2;
 // 「また来るね」で離れてから、この時間を超えて戻ると少しさみしそうな姿になります。
@@ -3246,21 +3246,62 @@ function t(key){ const lang = gameState.language || "ja"; return translations[la
 function tt(obj){ const lang = gameState.language || "ja"; return obj?.[lang] ?? obj?.ja ?? ""; }
 
 function localizedOptions(set){
+  // 旧仕様：{ options:{ja:[...]} }
+  // 新仕様：{ items:[{id,label}, {id,label}] }
+  // どちらでも画面に2択が出るようにしておく。
   const lang = gameState.language || "ja";
+  if(Array.isArray(set?.items)){
+    return set.items.map(item => item?.label?.[lang] || item?.label?.ja || item?.id || "");
+  }
+  if(set?.label){
+    return [set.label?.[lang] || set.label?.ja || set.id || ""];
+  }
   return set?.options?.[lang] || set?.options?.ja || [];
+}
+function getChoiceLabels(set){
+  return localizedOptions(set).filter(Boolean);
+}
+function getChoiceItems(set){
+  if(Array.isArray(set?.items)) return set.items;
+  if(set?.label) return [set];
+  const labels = localizedOptions(set);
+  return labels.map((label, index) => ({ id:`${set?.id || "choice"}_${index+1}`, label:{ ja:label, en:label, "zh-CN":label } }));
+}
+function pickTwoChoiceItems(list){
+  const pool = shuffleArray([...list]);
+  return pool.slice(0, 2);
 }
 function getChoiceSet(kind){
   const list = kind === "food" ? FOOD_CHOICE_SETS : OUTING_CHOICE_SETS;
   const dayKey = String(gameState.day || 1);
   gameState.choiceSets = gameState.choiceSets || {};
   gameState.choiceSets[dayKey] = gameState.choiceSets[dayKey] || {};
-  let set = list.find(item => item.id === gameState.choiceSets[dayKey][kind]);
-  if(!set){
-    set = list[Math.floor(Math.random() * list.length)];
-    gameState.choiceSets[dayKey][kind] = set.id;
+
+  // 以前の版では single id が入ることがあったため、配列でなければ作り直す。
+  let savedIds = gameState.choiceSets[dayKey][kind];
+  if(!Array.isArray(savedIds) || savedIds.length !== 2){
+    const selected = pickTwoChoiceItems(list);
+    savedIds = selected.map(item => item.id);
+    gameState.choiceSets[dayKey][kind] = savedIds;
     saveState();
-    logEvent(`${kind}_choice_set_assigned`, { choice_set_id:set.id, choices:localizedOptions(set).join(" / ") });
   }
+
+  let items = savedIds.map(id => list.find(item => item.id === id)).filter(Boolean);
+  if(items.length !== 2){
+    items = pickTwoChoiceItems(list);
+    savedIds = items.map(item => item.id);
+    gameState.choiceSets[dayKey][kind] = savedIds;
+    saveState();
+  }
+
+  const set = { id:savedIds.join("__"), items };
+  logEvent(`${kind}_choice_set_ready`, {
+    choice_set_id:set.id,
+    option_left_id:items[0]?.id || "",
+    option_left_label:tt(items[0]?.label || {}),
+    option_right_id:items[1]?.id || "",
+    option_right_label:tt(items[1]?.label || {})
+  });
   return set;
 }
 function getCleanText(key){
@@ -3324,7 +3365,7 @@ function getBeingAltText(){
 function replaceName(text){ return String(text).replaceAll("{name}", getBeingInlineName()); }
 
 function defaultState(){
-  return { language:null, research_id:null, screen:"01_language", consent:false, explanation_viewed:false, start_time:null, start_date:null, condition_id:null, identity_condition_id:null, macaron_color:null, character_id:null, character_name:"", day:1, affection:0, visit_count:0, dayActions:{}, dayComplete:{}, choiceSets:{}, regenerated:false, away_start_time:null, away_from_day:null, away_from_actions:0, last_away_elapsed_ms:0, just_returned_sad:false, just_returned_short:false, last_message_id:null, version:"implementation_assets_v3_leave_and_return" };
+  return { language:null, research_id:null, screen:"01_language", consent:false, explanation_viewed:false, start_time:null, start_date:null, condition_id:null, identity_condition_id:null, macaron_color:null, character_id:null, character_name:"", day:1, affection:0, visit_count:0, dayActions:{}, dayComplete:{}, choiceSets:{}, regenerated:false, away_start_time:null, away_from_day:null, away_from_actions:0, last_away_elapsed_ms:0, just_returned_sad:false, just_returned_short:false, last_message_id:null, version:"implementation_assets_v4_20_common_choices_fixed" };
 }
 function loadState(){ try{ return { ...defaultState(), ...(JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}) }; }catch(e){ return defaultState(); } }
 function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState)); updateStatus(); updateDevPanel(); }
@@ -3898,7 +3939,7 @@ function renderDayHome(){
 }
 function renderFood(){
   const set = getChoiceSet("food");
-  const choices = localizedOptions(set);
+  const choices = getChoiceLabels(set);
   screenShell(`
     <h2>${esc(t("foodTitle"))}</h2>
     <div class="grid two" style="margin-top:18px">
@@ -3911,18 +3952,39 @@ function renderFood(){
 }
 function chooseFoodOption(index){
   const set = getChoiceSet("food");
-  const choices = localizedOptions(set);
-  const choice = choices[index] || choices[0] || "";
-  chooseFood(choice, set.id);
+  const items = getChoiceItems(set);
+  const labels = getChoiceLabels(set);
+  const item = items[index] || items[0] || {};
+  const choice = labels[index] || labels[0] || tt(item.label || {}) || "";
+  chooseFood(choice, {
+    setId:set.id,
+    choiceId:item.id || "",
+    leftId:items[0]?.id || "",
+    leftLabel:labels[0] || "",
+    rightId:items[1]?.id || "",
+    rightLabel:labels[1] || ""
+  });
 }
-function chooseFood(choice, setId=""){
+function chooseFood(choice, meta={}){
+  if(typeof meta === "string") meta = { setId:meta };
   const comment = getActionComment("food", choice) || t("foodReactHigh");
-  markAction("food_choice", { day:gameState.day, food_choice:choice, food_choice_set_id:setId, food_time:now(), character_comment:comment });
+  markAction("food_choice", {
+    day:gameState.day,
+    food_choice:choice,
+    food_choice_id:meta.choiceId || "",
+    food_choice_set_id:meta.setId || "",
+    food_option_left_id:meta.leftId || "",
+    food_option_left_label:meta.leftLabel || "",
+    food_option_right_id:meta.rightId || "",
+    food_option_right_label:meta.rightLabel || "",
+    food_time:now(),
+    character_comment:comment
+  });
   showReaction(comment);
 }
 function renderOuting(){
   const set = getChoiceSet("outing");
-  const choices = localizedOptions(set);
+  const choices = getChoiceLabels(set);
   screenShell(`
     <h2>${esc(t("outingTitle"))}</h2>
     <div class="grid two" style="margin-top:18px">
@@ -3935,13 +3997,34 @@ function renderOuting(){
 }
 function chooseOutingOption(index){
   const set = getChoiceSet("outing");
-  const choices = localizedOptions(set);
-  const choice = choices[index] || choices[0] || "";
-  chooseOuting(choice, set.id);
+  const items = getChoiceItems(set);
+  const labels = getChoiceLabels(set);
+  const item = items[index] || items[0] || {};
+  const choice = labels[index] || labels[0] || tt(item.label || {}) || "";
+  chooseOuting(choice, {
+    setId:set.id,
+    choiceId:item.id || "",
+    leftId:items[0]?.id || "",
+    leftLabel:labels[0] || "",
+    rightId:items[1]?.id || "",
+    rightLabel:labels[1] || ""
+  });
 }
-function chooseOuting(choice, setId=""){
+function chooseOuting(choice, meta={}){
+  if(typeof meta === "string") meta = { setId:meta };
   const comment = getActionComment("outing", choice) || t("outingReactHigh");
-  markAction("outing_choice", { day:gameState.day, outing_choice:choice, outing_choice_set_id:setId, outing_time:now(), character_comment:comment });
+  markAction("outing_choice", {
+    day:gameState.day,
+    outing_choice:choice,
+    outing_choice_id:meta.choiceId || "",
+    outing_choice_set_id:meta.setId || "",
+    outing_option_left_id:meta.leftId || "",
+    outing_option_left_label:meta.leftLabel || "",
+    outing_option_right_id:meta.rightId || "",
+    outing_option_right_label:meta.rightLabel || "",
+    outing_time:now(),
+    character_comment:comment
+  });
   showReaction(comment);
 }
 function returnToDayHome(){
