@@ -162,13 +162,13 @@
       84%{transform:translateY(0) scaleX(1.04) scaleY(.94) rotate(-1deg)}
     }
     @keyframes penguinChokoFromRight{
-      0%{transform:translateX(92px) translateY(0) rotate(4deg)}
-      16%{transform:translateX(64px) translateY(-4px) rotate(-5deg)}
-      32%{transform:translateX(36px) translateY(0) rotate(5deg)}
-      48%{transform:translateX(8px) translateY(-4px) rotate(-4deg)}
-      64%{transform:translateX(-20px) translateY(0) rotate(4deg)}
-      80%{transform:translateX(-48px) translateY(-3px) rotate(-3deg)}
-      100%{transform:translateX(-76px) translateY(0) rotate(3deg)}
+      0%{transform:translateY(0) rotate(4deg)}
+      16%{transform:translateY(-4px) rotate(-5deg)}
+      32%{transform:translateY(0) rotate(5deg)}
+      48%{transform:translateY(-4px) rotate(-4deg)}
+      64%{transform:translateY(0) rotate(4deg)}
+      80%{transform:translateY(-3px) rotate(-3deg)}
+      100%{transform:translateY(0) rotate(3deg)}
     }
     @keyframes sealSlowKurukuru{
       0%{transform:rotate(0deg) scale(1)}
@@ -185,14 +185,14 @@
       72%{transform:translateX(4px) rotate(3deg) scaleX(1)}
     }
     @keyframes catRestlessRunSpin{
-      0%{transform:translateX(-92px) translateY(0) rotate(0deg)}
-      18%{transform:translateX(70px) translateY(-8px) rotate(4deg)}
-      31%{transform:translateX(92px) translateY(0) rotate(0deg)}
-      44%{transform:translateX(36px) translateY(-14px) rotate(160deg)}
+      0%{transform:translateX(24px) translateY(0) rotate(0deg)}
+      18%{transform:translateX(8px) translateY(-8px) rotate(4deg)}
+      31%{transform:translateX(-10px) translateY(0) rotate(0deg)}
+      44%{transform:translateX(-24px) translateY(-14px) rotate(160deg)}
       56%{transform:translateX(-12px) translateY(0) rotate(360deg)}
-      72%{transform:translateX(-86px) translateY(-6px) rotate(355deg)}
-      88%{transform:translateX(18px) translateY(0) rotate(370deg)}
-      100%{transform:translateX(-92px) translateY(0) rotate(360deg)}
+      72%{transform:translateX(14px) translateY(-6px) rotate(355deg)}
+      88%{transform:translateX(-2px) translateY(0) rotate(370deg)}
+      100%{transform:translateX(24px) translateY(0) rotate(360deg)}
     }
     /* 実装確認用：OS側の「視差効果を減らす」設定が入っていても、
        このキャラクター動作は確認できるようにしています。 */
@@ -1668,6 +1668,68 @@
 
 
 
+
+    /* ===========================================================
+       FINAL FIX 2026-05-16 v15
+       全キャラクターに、ペンギンのような「右から左へ進み、
+       端で向きを変える」移動を追加します。
+       内側のキャラクター固有アニメーションは残し、
+       外側のラッパーだけを横移動させます。
+       =========================================================== */
+    .pet-travel-wrap{
+      display:inline-grid;
+      place-items:center;
+      width:max-content;
+      height:max-content;
+      overflow:visible;
+      transform-origin:50% 92%;
+      will-change:transform;
+    }
+    .pet-travel-wrap > .pet-img,
+    .pet-travel-wrap > .char-fallback{
+      grid-area:1 / 1;
+    }
+    .pet-travel-r2l{
+      animation:petTravelRightLeft 7.2s ease-in-out infinite;
+    }
+    .pet-travel-r2l.char-rabbit_pink{animation-duration:7.0s;}
+    .pet-travel-r2l.char-kangaroo_blue{animation-duration:6.4s;}
+    .pet-travel-r2l.char-penguin_yellow{animation-duration:7.8s;}
+    .pet-travel-r2l.char-seal_gray{animation-duration:8.8s;}
+    .pet-travel-r2l.char-lizard_green{animation-duration:7.4s;}
+    .pet-travel-r2l.char-cat_purple{animation-duration:6.8s;}
+
+    @keyframes petTravelRightLeft{
+      0%{transform:translateX(84px) scaleX(-1)}
+      44%{transform:translateX(-76px) scaleX(-1)}
+      50%{transform:translateX(-78px) scaleX(1)}
+      94%{transform:translateX(82px) scaleX(1)}
+      100%{transform:translateX(84px) scaleX(-1)}
+    }
+
+    body.care-one-screen .pet-travel-r2l{
+      animation-name:petTravelRightLeftSmall;
+    }
+    @keyframes petTravelRightLeftSmall{
+      0%{transform:translateX(48px) scaleX(-1)}
+      44%{transform:translateX(-46px) scaleX(-1)}
+      50%{transform:translateX(-48px) scaleX(1)}
+      94%{transform:translateX(46px) scaleX(1)}
+      100%{transform:translateX(48px) scaleX(-1)}
+    }
+
+    body.care-one-screen .reaction-screen .pet-travel-r2l{
+      animation-name:petTravelRightLeftReaction;
+    }
+    @keyframes petTravelRightLeftReaction{
+      0%{transform:translateX(34px) scaleX(-1)}
+      44%{transform:translateX(-34px) scaleX(-1)}
+      50%{transform:translateX(-36px) scaleX(1)}
+      94%{transform:translateX(34px) scaleX(1)}
+      100%{transform:translateX(34px) scaleX(-1)}
+    }
+
+
     /* ===========================================================
        LETTER UI：絵本っぽい、やさしい手紙画面
        =========================================================== */
@@ -2974,14 +3036,24 @@ function getCharacterMotionClass(state="happy", extraClass=""){
   };
   return motionMap[getMotionCharacterId()] || "";
 }
+function getCharacterTravelClass(state="happy", extraClass=""){
+  // キャラクター固有の動きに加えて、外側のラッパーで左右移動を付ける。
+  // これにより、ジャンプ・ころころ・キョロキョロ等の元の動きを保ったまま、
+  // ペンギンのように右から左へ進み、端で向きを変えられる。
+  if(state !== "happy") return "";
+  if(/birth|fadeout|sleep|sad/.test(String(extraClass))) return "";
+  return "pet-travel-r2l";
+}
 function characterImg(state="happy", extraClass=""){
   const ch = getCharacter();
   if(!ch) return `<div class="char-fallback">✦</div>`;
   const src = ch.images[state] || ch.images.happy;
   const motionClass = getCharacterMotionClass(state, extraClass);
+  const travelClass = getCharacterTravelClass(state, extraClass);
   const displayId = getDisplayCharacterId() || ch.id || "unknown";
   const charClass = `char-${displayId}`;
-  return `<img class="pet-img ${esc(extraClass)} ${esc(motionClass)} ${esc(charClass)}" src="${esc(assetUrl(src))}" alt="${esc(getBeingAltText())}" loading="eager" decoding="async" onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden')"><div class="char-fallback hidden ${esc(extraClass)} ${esc(motionClass)} ${esc(charClass)}">${esc(ch.emoji || "✦")}</div>`;
+  const img = `<img class="pet-img ${esc(extraClass)} ${esc(motionClass)} ${esc(charClass)}" src="${esc(assetUrl(src))}" alt="${esc(getBeingAltText())}" loading="eager" decoding="async" onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden')"><div class="char-fallback hidden ${esc(extraClass)} ${esc(motionClass)} ${esc(charClass)}">${esc(ch.emoji || "✦")}</div>`;
+  return travelClass ? `<span class="pet-travel-wrap ${esc(travelClass)} ${esc(charClass)}">${img}</span>` : img;
 }
 function characterBehaviorLine(){
   const behaviorId = getPersonalityCharacterId() || getMotionCharacterId() || gameState.character_id;
