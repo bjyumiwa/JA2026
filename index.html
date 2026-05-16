@@ -2123,6 +2123,234 @@
     }
 
 
+    /* ===========================================================
+       ADMIN PC WORKBENCH：PC管理用3分割レイアウト
+       左：スマホ幅プレビュー / 中：操作 / 右：ログ確認
+       =========================================================== */
+    @media (min-width:980px){
+      body.admin-mode-active{
+        width:100vw;
+        height:100dvh;
+        overflow:hidden;
+        padding:0 !important;
+        background:#1b0d36 !important;
+      }
+
+      body.admin-mode-active::before,
+      body.admin-mode-active::after{
+        display:none !important;
+      }
+
+      body.admin-mode-active .app{
+        position:fixed;
+        left:0;
+        top:0;
+        bottom:0;
+        width:390px !important;
+        min-width:390px !important;
+        max-width:390px !important;
+        margin:0 !important;
+        padding:10px 8px 120px !important;
+        overflow:auto;
+        border-right:2px solid rgba(255,255,255,.18);
+        box-shadow:14px 0 34px rgba(0,0,0,.25);
+        background:
+          linear-gradient(180deg,rgba(30,12,61,.16),rgba(30,12,61,.16));
+      }
+
+      body.admin-mode-active .topbar{
+        margin:4px 0 8px !important;
+        padding:0 2px !important;
+      }
+
+      body.admin-mode-active .brand{
+        gap:8px !important;
+        transform:scale(.9);
+        transform-origin:left center;
+      }
+
+      body.admin-mode-active .brand .logo{
+        width:34px !important;
+        height:34px !important;
+        border-radius:12px !important;
+      }
+
+      body.admin-mode-active #status{
+        gap:6px !important;
+      }
+
+      body.admin-mode-active #status .pill{
+        font-size:10px !important;
+        padding:5px 7px !important;
+      }
+
+      body.admin-mode-active .screen{
+        min-height:calc(100dvh - 86px) !important;
+        border-radius:22px !important;
+        padding:clamp(14px,4vw,22px) !important;
+      }
+
+      body.admin-mode-active .dev-panel.admin-mini-panel{
+        position:fixed !important;
+        left:390px !important;
+        right:0 !important;
+        top:0 !important;
+        bottom:0 !important;
+        width:auto !important;
+        max-height:none !important;
+        overflow:hidden !important;
+        border-radius:0 !important;
+        border:0 !important;
+        border-left:1px solid rgba(255,255,255,.18) !important;
+        padding:14px !important;
+        background:
+          radial-gradient(circle at 20% 0%,rgba(255,218,245,.22),transparent 34%),
+          radial-gradient(circle at 90% 90%,rgba(213,242,255,.22),transparent 38%),
+          linear-gradient(135deg,#f7f1ff,#eef8ff) !important;
+        box-shadow:none !important;
+        color:#2d2350 !important;
+      }
+
+      .admin-workbench{
+        height:100%;
+        display:grid;
+        grid-template-columns:330px minmax(420px,1fr);
+        gap:14px;
+      }
+
+      .admin-pane{
+        min-height:0;
+        overflow:auto;
+        border-radius:24px;
+        background:rgba(255,255,255,.78);
+        border:1px solid rgba(255,255,255,.82);
+        box-shadow:0 12px 28px rgba(31,18,64,.10);
+        padding:14px;
+      }
+
+      .admin-pane h2{
+        font-size:19px !important;
+        margin:0 0 10px !important;
+        color:#2d2350 !important;
+        text-shadow:none !important;
+      }
+
+      .admin-pane h3{
+        font-size:15px !important;
+        margin:14px 0 8px !important;
+        color:#5f4c78 !important;
+      }
+
+      .admin-phone-label{
+        position:fixed;
+        left:12px;
+        bottom:10px;
+        z-index:10000;
+        width:366px;
+        padding:8px 10px;
+        border-radius:16px;
+        background:rgba(255,255,255,.9);
+        border:1px solid rgba(255,255,255,.75);
+        box-shadow:0 10px 24px rgba(0,0,0,.18);
+        color:#2d2350;
+        font-size:12px;
+        font-weight:900;
+        text-align:center;
+      }
+
+      .admin-kpi-grid{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:8px;
+      }
+
+      .admin-kpi{
+        border-radius:16px;
+        padding:10px;
+        background:rgba(245,241,255,.82);
+        border:1px solid rgba(107,85,145,.12);
+      }
+
+      .admin-kpi b{
+        display:block;
+        font-size:11px;
+        color:#7a6a8e;
+        margin-bottom:4px;
+      }
+
+      .admin-kpi span{
+        display:block;
+        font-size:15px;
+        font-weight:900;
+        color:#2d2350;
+        overflow-wrap:anywhere;
+      }
+
+      .admin-action-grid{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:8px;
+      }
+
+      .admin-action-grid button{
+        min-height:42px !important;
+        padding:8px 9px !important;
+        border-radius:14px !important;
+        font-size:12px !important;
+      }
+
+      .admin-log-table{
+        width:100%;
+        border-collapse:separate;
+        border-spacing:0 6px;
+        font-size:12px;
+      }
+
+      .admin-log-table th{
+        position:sticky;
+        top:0;
+        z-index:1;
+        background:#f7f0ff;
+        color:#5b4a71;
+        padding:8px;
+        text-align:left;
+        border-bottom:1px solid rgba(93,70,126,.12);
+      }
+
+      .admin-log-table td{
+        padding:8px;
+        background:rgba(255,255,255,.78);
+        border-top:1px solid rgba(255,255,255,.85);
+        border-bottom:1px solid rgba(93,70,126,.08);
+        color:#2d2350;
+        vertical-align:top;
+        overflow-wrap:anywhere;
+      }
+
+      .admin-log-table td:first-child,
+      .admin-log-table th:first-child{
+        border-radius:12px 0 0 12px;
+      }
+
+      .admin-log-table td:last-child,
+      .admin-log-table th:last-child{
+        border-radius:0 12px 12px 0;
+      }
+
+      .admin-log-details{
+        max-width:420px;
+        white-space:normal;
+      }
+
+      .admin-note{
+        font-size:12px;
+        line-height:1.65;
+        color:#635272;
+        margin:8px 0 0;
+      }
+    }
+
+
   </style>
 </head>
 <body>
@@ -4114,6 +4342,102 @@ function adminOpenSurveyCheck(){
   render();
 }
 
+
+function adminLogTableRows(limit=36){
+  const rows = event_log.slice(-limit).reverse();
+  if(!rows.length){
+    return `<tr><td colspan="5">まだログがありません。左のスマホ画面で操作すると、ここに追加されます。</td></tr>`;
+  }
+  return rows.map((r, idx) => {
+    const time = String(r.timestamp || "").replace("T"," ").slice(0,19);
+    const d = r.day ? `${r.day}日目` : "-";
+    const details = flattenDetails(r.details || {});
+    return `<tr>
+      <td>${esc(String(rows.length - idx))}</td>
+      <td>${esc(time)}</td>
+      <td>${esc(d)}</td>
+      <td>${esc(r.event_type || "-")}</td>
+      <td class="admin-log-details">${esc(details || "-")}</td>
+    </tr>`;
+  }).join("");
+}
+
+function adminDesktopWorkbenchHtml(){
+  const s = buildAdminSummary();
+  return `
+    <div class="admin-phone-label">左側はスマホ幅プレビューです。本番の見え方をここで確認できます。</div>
+
+    <div class="admin-workbench">
+      <section class="admin-pane">
+        <h2>管理者操作</h2>
+
+        <div class="admin-kpi-grid">
+          <div class="admin-kpi"><b>現在</b><span>${esc(String(s.day || "-"))}日目</span></div>
+          <div class="admin-kpi"><b>ログ</b><span>${esc(String(s.total))}件</span></div>
+          <div class="admin-kpi"><b>条件</b><span>${esc(s.condition_id || "-")}</span></div>
+          <div class="admin-kpi"><b>再生成</b><span>${esc(s.identity_condition_id || "-")}</span></div>
+          <div class="admin-kpi"><b>表示キャラ</b><span>${esc(s.display_character_id || "-")}</span></div>
+          <div class="admin-kpi"><b>動作キャラ</b><span>${esc(s.motion_character_id || "-")}</span></div>
+        </div>
+
+        <h3>画面移動</h3>
+        <div class="admin-action-grid">
+          <button onclick="adminJumpDay(1)">1日目へ</button>
+          <button onclick="adminJumpDay(2)">2日目へ</button>
+          <button onclick="adminJumpDay(3)">3日目へ</button>
+          <button class="admin-danger" onclick="adminJumpScreen('16_disappearance',3)">消失画面へ</button>
+          <button class="admin-main" onclick="adminJumpScreen('18_regeneration',4)">再生成画面へ</button>
+          <button onclick="adminJumpDay(4)">4日目へ</button>
+          <button onclick="adminJumpDay(5)">5日目へ</button>
+          <button class="admin-main" onclick="adminOpenSurveyCheck()">最終アンケート</button>
+        </div>
+
+        <h3>確認・出力</h3>
+        <div class="admin-action-grid">
+          <button onclick="adminFillCurrentDayActions()">今日の世話OK</button>
+          <button onclick="showAdminSummary()">ログ集計</button>
+          <button onclick="downloadLog('csv')">CSV出力</button>
+          <button onclick="downloadLog('json')">JSON出力</button>
+        </div>
+
+        <h3>条件固定</h3>
+        <div class="admin-action-grid">
+          <button class="admin-small" onclick="setIdentityCondition('A1')">条件①</button>
+          <button class="admin-small" onclick="setIdentityCondition('A2')">条件②</button>
+          <button class="admin-small" onclick="setIdentityCondition('A3')">条件③</button>
+          <button class="admin-danger" onclick="resetGame()">リセット</button>
+        </div>
+
+        <p class="admin-note">この管理画面は <b>?admin=1</b> の時だけ表示されます。参加者用URLでは表示されません。</p>
+      </section>
+
+      <section class="admin-pane">
+        <h2>ログ確認</h2>
+        <div class="admin-kpi-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));">
+          <div class="admin-kpi"><b>ID</b><span>${esc(s.research_id || "-")}</span></div>
+          <div class="admin-kpi"><b>消失</b><span>${s.disappearance_reached ? "済" : "未"}</span></div>
+          <div class="admin-kpi"><b>再生成</b><span>${s.regeneration_reached ? "済" : "未"}</span></div>
+          <div class="admin-kpi"><b>アンケート</b><span>${s.survey_reached ? "済" : "未"}</span></div>
+        </div>
+
+        <table class="admin-log-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>時刻</th>
+              <th>日</th>
+              <th>event</th>
+              <th>details</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${adminLogTableRows(40)}
+          </tbody>
+        </table>
+      </section>
+    </div>`;
+}
+
 function updateDevPanel(){
   const panel = document.getElementById("devPanel");
   if(!DEV_MODE){
@@ -4125,10 +4449,16 @@ function updateDevPanel(){
   document.body.classList.add("admin-mode-active");
   adminEnsureTestState();
 
+  if(window.matchMedia && window.matchMedia("(min-width:980px)").matches){
+    panel.className = "dev-panel admin-mini-panel admin-desktop-panel";
+    panel.innerHTML = adminDesktopWorkbenchHtml();
+    return;
+  }
+
   const s = buildAdminSummary();
   panel.className = "dev-panel admin-mini-panel";
   panel.innerHTML = `
-    <details open>
+    <details>
       <summary>
         <span class="admin-mini-title">🔒 管理者確認</span>
         <span class="admin-mini-badge">${esc(String(s.day || "-"))}日目 / ${esc(String(s.total))}件</span>
