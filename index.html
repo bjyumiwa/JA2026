@@ -2509,49 +2509,54 @@ const MACARONS = [
    画面に出る2択は日ごとにランダムで固定され、ログにも残ります。
    =========================================================== */
 const FOOD_CHOICE_SETS = [
-  { id:"food_01", options:{ ja:["星くずパン","月しずくごはん"], en:["Stardust Bread","Moon-Drop Rice"], "zh-CN":["星尘面包","月露米饭"] } },
-  { id:"food_02", options:{ ja:["リンゴ星ジュース","ミカン彗星ジュース"], en:["Apple-Star Juice","Mandarin-Comet Juice"], "zh-CN":["苹果星果汁","橘子彗星果汁"] } },
-  { id:"food_03", options:{ ja:["ふわ雲パン","きら米ボール"], en:["Fluffy-Cloud Bread","Sparkle Rice Ball"], "zh-CN":["云朵软面包","闪米团"] } },
-  { id:"food_04", options:{ ja:["クリスタルミルク","流れ星ココア"], en:["Crystal Milk","Shooting-Star Cocoa"], "zh-CN":["水晶牛奶","流星可可"] } },
-  { id:"food_05", options:{ ja:["星砂スープ","月影シチュー"], en:["Star-Sand Soup","Moon-Shadow Stew"], "zh-CN":["星砂汤","月影炖汤"] } },
-  { id:"food_06", options:{ ja:["宇宙ベリーゼリー","オーロラプリン"], en:["Cosmic Berry Jelly","Aurora Pudding"], "zh-CN":["宇宙莓果冻","极光布丁"] } },
-  { id:"food_07", options:{ ja:["ロケットおにぎり","ほしのわサンド"], en:["Rocket Rice Ball","Star-Ring Sandwich"], "zh-CN":["火箭饭团","星环三明治"] } },
-  { id:"food_08", options:{ ja:["きらきらニンジン","銀河ポテト"], en:["Glitter Carrot","Galaxy Potato"], "zh-CN":["闪闪胡萝卜","银河土豆"] } },
-  { id:"food_09", options:{ ja:["ピンク星スムージー","青空ソーダ"], en:["Pink-Star Smoothie","Blue-Sky Soda"], "zh-CN":["粉星奶昔","蓝空苏打"] } },
-  { id:"food_10", options:{ ja:["太陽たまご","星雲とうふ"], en:["Sun Egg","Nebula Tofu"], "zh-CN":["太阳蛋","星云豆腐"] } },
-  { id:"food_11", options:{ ja:["小惑星クラッカー","虹色せんべい"], en:["Asteroid Cracker","Rainbow Rice Cracker"], "zh-CN":["小行星饼干","彩虹米饼"] } },
-  { id:"food_12", options:{ ja:["彗星バナナ","月うさぎリンゴ"], en:["Comet Banana","Moon-Rabbit Apple"], "zh-CN":["彗星香蕉","月兔苹果"] } },
-  { id:"food_13", options:{ ja:["ふわふわパンケーキ","星形ワッフル"], en:["Fluffy Pancake","Star-Shaped Waffle"], "zh-CN":["松软煎饼","星形华夫饼"] } },
-  { id:"food_14", options:{ ja:["ミルキーライス","プラネットヌードル"], en:["Milky Rice","Planet Noodles"], "zh-CN":["奶银河饭","行星面条"] } },
-  { id:"food_15", options:{ ja:["ぽかぽかスープ","ひんやりアイスミルク"], en:["Warm Glow Soup","Cool Ice Milk"], "zh-CN":["暖暖汤","冰凉牛奶"] } },
-  { id:"food_16", options:{ ja:["星の実サラダ","クリスタルコーン"], en:["Star-Fruit Salad","Crystal Corn"], "zh-CN":["星果沙拉","水晶玉米"] } },
-  { id:"food_17", options:{ ja:["まる月まんじゅう","流星ドーナツ"], en:["Round-Moon Bun","Meteor Donut"], "zh-CN":["圆月馒头","流星甜甜圈"] } },
-  { id:"food_18", options:{ ja:["きら水","ふわ茶"], en:["Sparkle Water","Fluffy Tea"], "zh-CN":["闪光水","云朵茶"] } },
-  { id:"food_19", options:{ ja:["マカロン星カレー","月面リゾット"], en:["Macaron-Star Curry","Moon-Surface Risotto"], "zh-CN":["马卡龙星咖喱","月面烩饭"] } },
-  { id:"food_20", options:{ ja:["ハートベリー","スターグレープ"], en:["Heart Berry","Star Grape"], "zh-CN":["心形莓果","星星葡萄"] } }
+  // 全キャラ共通のごはん候補20種類。
+  // 以前の「固定された2択セット」ではなく、この20種類から毎回2つをランダムに出します。
+  // 変数名は既存コードとの互換のため FOOD_CHOICE_SETS のままにしています。
+  { id:"food_01", label:{ ja:"星のパン", en:"Star Bread", "zh-CN":"星星面包" } },
+  { id:"food_02", label:{ ja:"月のスープ", en:"Moon Soup", "zh-CN":"月亮汤" } },
+  { id:"food_03", label:{ ja:"きらきらゼリー", en:"Sparkle Jelly", "zh-CN":"闪光果冻" } },
+  { id:"food_04", label:{ ja:"ふわふわごはん", en:"Fluffy Rice", "zh-CN":"松软米饭" } },
+  { id:"food_05", label:{ ja:"クリスタルキャンディ", en:"Crystal Candy", "zh-CN":"水晶糖果" } },
+  { id:"food_06", label:{ ja:"まるいビスケット", en:"Round Biscuit", "zh-CN":"圆圆饼干" } },
+  { id:"food_07", label:{ ja:"宇宙ミルク", en:"Cosmic Milk", "zh-CN":"宇宙牛奶" } },
+  { id:"food_08", label:{ ja:"にじいろベリー", en:"Rainbow Berry", "zh-CN":"彩虹莓果" } },
+  { id:"food_09", label:{ ja:"ほしのかけらクッキー", en:"Star-Piece Cookie", "zh-CN":"星星碎片曲奇" } },
+  { id:"food_10", label:{ ja:"しずくジュース", en:"Drop Juice", "zh-CN":"水滴果汁" } },
+  { id:"food_11", label:{ ja:"やさしいおかゆ", en:"Gentle Porridge", "zh-CN":"温柔粥" } },
+  { id:"food_12", label:{ ja:"ぷるぷるプリン", en:"Wobble Pudding", "zh-CN":"摇摇布丁" } },
+  { id:"food_13", label:{ ja:"光るマカロン", en:"Glowing Macaron", "zh-CN":"发光马卡龙" } },
+  { id:"food_14", label:{ ja:"雲のわたあめ", en:"Cloud Cotton Candy", "zh-CN":"云朵棉花糖" } },
+  { id:"food_15", label:{ ja:"小さなドーナツ", en:"Tiny Donut", "zh-CN":"小甜甜圈" } },
+  { id:"food_16", label:{ ja:"流れ星ポテト", en:"Shooting-Star Potato", "zh-CN":"流星土豆" } },
+  { id:"food_17", label:{ ja:"透明キャンディ", en:"Clear Candy", "zh-CN":"透明糖果" } },
+  { id:"food_18", label:{ ja:"夕焼けスープ", en:"Sunset Soup", "zh-CN":"晚霞汤" } },
+  { id:"food_19", label:{ ja:"ふしぎな実", en:"Mysterious Fruit", "zh-CN":"神奇果实" } },
+  { id:"food_20", label:{ ja:"おやすみミルク", en:"Goodnight Milk", "zh-CN":"晚安牛奶" } }
 ];
 
 const OUTING_CHOICE_SETS = [
-  { id:"outing_01", options:{ ja:["星の丘","光の庭"], en:["Star Hill","Light Garden"], "zh-CN":["星之丘","光之庭"] } },
-  { id:"outing_02", options:{ ja:["月の図書館","流星広場"], en:["Moon Library","Meteor Plaza"], "zh-CN":["月亮图书馆","流星广场"] } },
-  { id:"outing_03", options:{ ja:["クリスタル池","オーロラ橋"], en:["Crystal Pond","Aurora Bridge"], "zh-CN":["水晶池","极光桥"] } },
-  { id:"outing_04", options:{ ja:["雲のベンチ","銀河ブランコ"], en:["Cloud Bench","Galaxy Swing"], "zh-CN":["云朵长椅","银河秋千"] } },
-  { id:"outing_05", options:{ ja:["小惑星トンネル","星砂ビーチ"], en:["Asteroid Tunnel","Star-Sand Beach"], "zh-CN":["小行星隧道","星砂海滩"] } },
-  { id:"outing_06", options:{ ja:["マカロン時計塔","月あかり駅"], en:["Macaron Clock Tower","Moonlight Station"], "zh-CN":["马卡龙钟塔","月光车站"] } },
-  { id:"outing_07", options:{ ja:["虹の観測所","彗星すべり台"], en:["Rainbow Observatory","Comet Slide"], "zh-CN":["彩虹观测所","彗星滑梯"] } },
-  { id:"outing_08", options:{ ja:["星雲の森","きらめき洞窟"], en:["Nebula Forest","Sparkle Cave"], "zh-CN":["星云森林","闪光洞穴"] } },
-  { id:"outing_09", options:{ ja:["ふわふわ雲原っぱ","ロケット小道"], en:["Fluffy Cloud Field","Rocket Path"], "zh-CN":["软云草地","火箭小路"] } },
-  { id:"outing_10", options:{ ja:["ハート星の泉","青い月の港"], en:["Heart-Star Spring","Blue-Moon Port"], "zh-CN":["心星泉","蓝月港"] } },
-  { id:"outing_11", options:{ ja:["星屑マーケット","光る草むら"], en:["Stardust Market","Glowing Grass"], "zh-CN":["星尘集市","发光草丛"] } },
-  { id:"outing_12", options:{ ja:["月うさぎ広場","クリーム雲の道"], en:["Moon-Rabbit Square","Cream-Cloud Road"], "zh-CN":["月兔广场","奶油云路"] } },
-  { id:"outing_13", options:{ ja:["ミルキーウェイ坂","星形ドーム"], en:["Milky Way Slope","Star Dome"], "zh-CN":["银河坡道","星形穹顶"] } },
-  { id:"outing_14", options:{ ja:["静かな宇宙庭園","にぎやか流星通り"], en:["Quiet Space Garden","Lively Meteor Street"], "zh-CN":["安静宇宙庭园","热闹流星街"] } },
-  { id:"outing_15", options:{ ja:["きら星ステージ","月影シアター"], en:["Twinkle-Star Stage","Moon-Shadow Theater"], "zh-CN":["闪星舞台","月影剧场"] } },
-  { id:"outing_16", options:{ ja:["星の郵便局","オーロラカフェ"], en:["Star Post Office","Aurora Cafe"], "zh-CN":["星星邮局","极光咖啡馆"] } },
-  { id:"outing_17", options:{ ja:["プラネット迷路","すやすや雲の部屋"], en:["Planet Maze","Sleepy Cloud Room"], "zh-CN":["行星迷宫","睡睡云房间"] } },
-  { id:"outing_18", options:{ ja:["光の階段","星風のテラス"], en:["Stairway of Light","Star-Wind Terrace"], "zh-CN":["光之阶梯","星风露台"] } },
-  { id:"outing_19", options:{ ja:["マカロン湖","彗星観覧車"], en:["Macaron Lake","Comet Ferris Wheel"], "zh-CN":["马卡龙湖","彗星摩天轮"] } },
-  { id:"outing_20", options:{ ja:["朝焼け星原","夜ふけ月原"], en:["Dawn Starfield","Midnight Moonfield"], "zh-CN":["晨曦星原","深夜月原"] } }
+  // 全キャラ共通のおでかけ候補20種類。
+  // この20種類から毎回2つをランダムに出します。
+  { id:"outing_01", label:{ ja:"星の丘", en:"Star Hill", "zh-CN":"星之丘" } },
+  { id:"outing_02", label:{ ja:"月あかりの道", en:"Moonlit Road", "zh-CN":"月光小路" } },
+  { id:"outing_03", label:{ ja:"クリスタル広場", en:"Crystal Plaza", "zh-CN":"水晶广场" } },
+  { id:"outing_04", label:{ ja:"雲のベンチ", en:"Cloud Bench", "zh-CN":"云朵长椅" } },
+  { id:"outing_05", label:{ ja:"小さな森", en:"Little Forest", "zh-CN":"小森林" } },
+  { id:"outing_06", label:{ ja:"ひみつの泉", en:"Secret Spring", "zh-CN":"秘密泉水" } },
+  { id:"outing_07", label:{ ja:"きらきら砂浜", en:"Sparkling Beach", "zh-CN":"闪闪沙滩" } },
+  { id:"outing_08", label:{ ja:"流れ星の橋", en:"Shooting-Star Bridge", "zh-CN":"流星桥" } },
+  { id:"outing_09", label:{ ja:"宇宙公園", en:"Space Park", "zh-CN":"宇宙公园" } },
+  { id:"outing_10", label:{ ja:"光のトンネル", en:"Tunnel of Light", "zh-CN":"光之隧道" } },
+  { id:"outing_11", label:{ ja:"ふわふわ草原", en:"Fluffy Meadow", "zh-CN":"软软草原" } },
+  { id:"outing_12", label:{ ja:"にじの階段", en:"Rainbow Stairs", "zh-CN":"彩虹阶梯" } },
+  { id:"outing_13", label:{ ja:"星くずマーケット", en:"Stardust Market", "zh-CN":"星尘集市" } },
+  { id:"outing_14", label:{ ja:"しずかな湖", en:"Quiet Lake", "zh-CN":"安静湖泊" } },
+  { id:"outing_15", label:{ ja:"まどろみの丘", en:"Drowsy Hill", "zh-CN":"微睡之丘" } },
+  { id:"outing_16", label:{ ja:"音のなる広場", en:"Sounding Plaza", "zh-CN":"会响的广场" } },
+  { id:"outing_17", label:{ ja:"風の小道", en:"Wind Path", "zh-CN":"风之小路" } },
+  { id:"outing_18", label:{ ja:"夜空の展望台", en:"Night-Sky Observatory", "zh-CN":"夜空展望台" } },
+  { id:"outing_19", label:{ ja:"マカロン広場", en:"Macaron Plaza", "zh-CN":"马卡龙广场" } },
+  { id:"outing_20", label:{ ja:"夢見る庭", en:"Dreaming Garden", "zh-CN":"梦之庭" } }
 ];
 
 const CLEAN_COLORS = [
