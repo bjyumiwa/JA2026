@@ -1562,6 +1562,57 @@
     }
 
 
+
+
+    /* ===========================================================
+       FINAL FIX 2026-05-16 v12
+       💩ゲームを「色を選ぶ」方式ではなく、前のように
+       出てきた💩をタップして消すミニゲームに戻します。
+       =========================================================== */
+    .clean-target-card.tap-poop-instruction{
+      font-size:16px !important;
+      letter-spacing:.02em;
+      background:rgba(255,255,255,.70) !important;
+      color:var(--ink) !important;
+      text-shadow:none !important;
+    }
+    .moving-poop.tap-poop{
+      width:62px;
+      height:62px;
+      border:3px solid rgba(255,255,255,.78) !important;
+      background:rgba(255,255,255,.56) !important;
+      box-shadow:
+        0 0 14px rgba(255,255,255,.42),
+        0 10px 18px rgba(25,18,65,.18) !important;
+      animation:poopTapFloat var(--dur,2.8s) ease-in-out infinite alternate !important;
+      touch-action:manipulation;
+    }
+    .moving-poop.tap-poop:active{
+      transform:scale(.88) !important;
+    }
+    .moving-poop.tap-poop.cleaned{
+      opacity:0 !important;
+      pointer-events:none !important;
+      animation:none !important;
+      transform:scale(.15) rotate(24deg) !important;
+      transition:.22s opacity,.22s transform !important;
+    }
+    @keyframes poopTapFloat{
+      from{transform:translate(0,0) rotate(-6deg) scale(1)}
+      to{transform:translate(var(--dx,34px),var(--dy,-22px)) rotate(7deg) scale(1.04)}
+    }
+    @media(max-width:720px){
+      .moving-poop.tap-poop{
+        width:54px;
+        height:54px;
+        font-size:36px;
+      }
+      .clean-target-card.tap-poop-instruction{
+        font-size:14px !important;
+        padding:8px 12px !important;
+      }
+    }
+
 </style>
 </head>
 <body>
@@ -3039,65 +3090,58 @@ function showReaction(text){
       <button class="primary" onclick="go('09_day_home')">${esc(t("returnHome"))}</button>
     </div>`);
 }
+function getTapPoopText(key){
+  const lang = gameState.language || "ja";
+  const texts = {
+    ja:{ desc:"出てきた💩をタップして、全部消してください。", target:"💩をタップして消してね", progress:"あと {n} 個", complete:"💩を全部きれいにできました。" },
+    en:{ desc:"Tap each poop to make it disappear.", target:"Tap the poop to clear it", progress:"{n} left", complete:"You cleared all the poop." },
+    "zh-CN":{ desc:"点击出现的便便，把它们全部清掉。", target:"点击便便清理", progress:"还剩 {n} 个", complete:"便便已经全部清理好了。" }
+  };
+  return texts[lang]?.[key] || texts.ja[key] || key;
+}
 function renderClean(){
   screenShell(`
-    <h2>${esc(t("cleanTitle"))}</h2><p>${esc(replaceName(t("cleanDesc")))}</p>
-    <div id="cleanTarget" class="clean-target-card"></div>
+    <h2>${esc(t("cleanTitle"))}</h2><p>${esc(getTapPoopText("desc"))}</p>
+    <div id="cleanTarget" class="clean-target-card tap-poop-instruction">${esc(getTapPoopText("target"))}</div>
     <div id="poopArea" class="poop-area clean-game-area"></div>
     <div class="center"><span id="cleanProgress" class="clean-progress"></span></div>
   `);
-  initMovingPoopGame();
+  initTapPoopGame();
 }
-function initMovingPoopGame(){
+function initTapPoopGame(){
   const area = document.getElementById("poopArea");
-  const targetEl = document.getElementById("cleanTarget");
-  const progressEl = document.getElementById("cleanProgress");
-  if(!area || !targetEl || !progressEl) return;
-  const target = CLEAN_COLORS[Math.floor(Math.random() * CLEAN_COLORS.length)];
-  const decoys = shuffleArray(CLEAN_COLORS.filter(c => c.id !== target.id));
-  const colors = shuffleArray([target, target, target, decoys[0], decoys[1], decoys[2], decoys[3] || decoys[0], target]);
-  window._poopTargetColor = target.id;
-  window._poopTargetLabel = getCleanColorLabel(target);
+  if(!area) return;
   window._poopCleaned = 0;
-  window._poopMistakes = 0;
-  window._poopTargetNeeded = 3;
-  targetEl.style.setProperty("--target-color", target.hex);
-  targetEl.innerHTML = `<span class="clean-color-dot"></span><span>${esc(getCleanText("target"))}：${esc(getCleanColorLabel(target))}</span>`;
+  window._poopFinished = false;
+  window._poopTargetNeeded = 7;
   updateCleanProgress();
-  area.innerHTML = colors.map((color, i) => {
-    const left = 10 + (i * 13) % 72;
-    const top = 13 + ((i * 29) % 70);
-    const dx = (i % 2 === 0 ? 1 : -1) * (28 + Math.floor(Math.random()*42));
-    const dy = (i % 3 === 0 ? -1 : 1) * (18 + Math.floor(Math.random()*36));
-    const dur = (2.0 + Math.random()*1.8).toFixed(2) + "s";
-    const delay = (-Math.random()*1.8).toFixed(2) + "s";
-    return `<span class="poop moving-poop" data-color="${esc(color.id)}" style="left:${left}%;top:${top}%;--ring:${esc(color.hex)};--dx:${dx}px;--dy:${dy}px;--dur:${dur};animation-delay:${delay}" onclick="cleanPoop(this)">💩</span>`;
+  area.innerHTML = Array.from({length:window._poopTargetNeeded}).map((_, i) => {
+    const left = 8 + (i * 17) % 76;
+    const top = 14 + ((i * 31) % 66);
+    const dx = (i % 2 === 0 ? 1 : -1) * (18 + Math.floor(Math.random()*34));
+    const dy = (i % 3 === 0 ? -1 : 1) * (14 + Math.floor(Math.random()*28));
+    const dur = (2.0 + Math.random()*1.5).toFixed(2) + "s";
+    const delay = (-Math.random()*1.4).toFixed(2) + "s";
+    return `<span class="poop moving-poop tap-poop" data-poop-id="${i+1}" style="left:${left}%;top:${top}%;--dx:${dx}px;--dy:${dy}px;--dur:${dur};animation-delay:${delay}" onclick="cleanPoop(this)">💩</span>`;
   }).join("");
-  logEvent("clean_game_start", { day:gameState.day, target_color_id:target.id, target_color_label:getCleanColorLabel(target), total_targets:4 });
+  logEvent("clean_game_start", { day:gameState.day, mini_game_type:"tap_to_clear", total_targets:window._poopTargetNeeded });
 }
 function updateCleanProgress(){
   const progressEl = document.getElementById("cleanProgress");
   if(!progressEl) return;
-  const remain = Math.max(0, (window._poopTargetNeeded || 3) - (window._poopCleaned || 0));
-  progressEl.textContent = getCleanText("progress").replace("{n}", remain);
+  const remain = Math.max(0, (window._poopTargetNeeded || 7) - (window._poopCleaned || 0));
+  progressEl.textContent = getTapPoopText("progress").replace("{n}", remain);
 }
 function cleanPoop(el){
-  const color = el?.dataset?.color || "";
-  if(color !== window._poopTargetColor){
-    window._poopMistakes = (window._poopMistakes || 0) + 1;
-    el.classList.add("wrong");
-    showToast(getCleanText("wrong"));
-    logEvent("poop_wrong_color", { day:gameState.day, clicked_color_id:color, target_color_id:window._poopTargetColor, mistakes:window._poopMistakes });
-    setTimeout(()=>el.classList.remove("wrong"), 360);
-    return;
-  }
+  if(!el || el.classList.contains("cleaned") || window._poopFinished) return;
   el.classList.add("cleaned");
   window._poopCleaned = (window._poopCleaned || 0) + 1;
   updateCleanProgress();
-  logEvent("poop_correct_color", { day:gameState.day, clicked_color_id:color, target_color_id:window._poopTargetColor, cleaned:window._poopCleaned });
-  if(window._poopCleaned >= (window._poopTargetNeeded || 3)){
-    const comment = getActionComment("clean") || getCleanText("complete");
-    markAction("poop_clean", { day:gameState.day, poop_clean_count:window._poopCleaned, poop_wrong_count:window._poopMistakes || 0, target_color_id:window._poopTargetColor, target_color_label:window._poopTargetLabel, poop_clean_time:now(), character_comment:comment });
+  logEvent("poop_tapped", { day:gameState.day, poop_id:el.dataset.poopId || "", cleaned:window._poopCleaned, remaining:Math.max(0, (window._poopTargetNeeded || 7) - window._poopCleaned) });
+  if(window._poopCleaned >= (window._poopTargetNeeded || 7)){
+    window._poopFinished = true;
+    const comment = getActionComment("clean") || getTapPoopText("complete");
+    markAction("poop_clean", { day:gameState.day, poop_clean_count:window._poopCleaned, mini_game_type:"tap_to_clear", mini_game_result:"complete", poop_clean_time:now(), character_comment:comment });
     setTimeout(()=>showReaction(comment), 420);
   }
 }
