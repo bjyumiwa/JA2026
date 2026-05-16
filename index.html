@@ -1983,12 +1983,26 @@
 const URL_PARAMS = new URLSearchParams(location.search);
 const ADMIN_MODE = URL_PARAMS.get("admin") === "1" || URL_PARAMS.get("dev") === "1";
 const DEV_MODE = ADMIN_MODE;
-const SURVEY_URL = "https://forms.gle/xxxxxxxx"; // GoogleフォームURLに差し替えます。
+const SURVEY_URL = "https://forms.gle/xxxxxxxx"; // GoogleフォームURLに差し替えます。管理者確認だけなら、?admin=1 の下部ボタンから一時設定できます。
 const LOG_ENDPOINT = ""; // Google Apps ScriptのウェブアプリURL。入れると管理者用スプレッドシートへ自動送信します。
 const REMOTE_LOG_QUEUE_KEY = "osewa_4320n_remote_log_queue_v1";
 const STORAGE_KEY = "osewa_4320n_state_v5_multilingual";
 const LOG_KEY = "osewa_4320n_event_log_v5_multilingual";
 const ASSET_VERSION = "20260516_v14_leave_and_return"; // 画像を差し替えた時にブラウザの古いキャッシュを避けるための番号です。
+const ADMIN_SURVEY_URL_KEY = "osewa_4320n_admin_survey_url_override_v1";
+function getSurveyUrl(){
+  // 本番では上の SURVEY_URL を GoogleフォームURLに差し替えます。
+  // 管理者確認中だけ、画面下の「フォームURL設定」で一時的に上書きできます。
+  return (localStorage.getItem(ADMIN_SURVEY_URL_KEY) || SURVEY_URL || "").trim();
+}
+function isSurveyUrlReady(){
+  const url = getSurveyUrl();
+  return /^https?:\/\//.test(url) && !url.includes("xxxxxxxx");
+}
+function isLogEndpointReady(){
+  return /^https?:\/\//.test(LOG_ENDPOINT || "");
+}
+
 const RESET_PASSWORD = "JA2026"; // 動作確認用リセットパスワード。必要ならここを変更します。
 const REQUIRED_ACTIONS_PER_DAY = 2;
 // 「また来るね」で離れてから、この時間を超えて戻ると少しさみしそうな姿になります。
@@ -3639,30 +3653,39 @@ function renderAway(){
 function completeCurrentDay(){
   const d = gameState.day;
   gameState.dayComplete[String(d)] = true;
-  logEvent("day_complete", { day_complete:d, day_complete_time:now() }); saveState();
+  gameState.last_day_complete_date = new Date().toISOString().slice(0,10);
+  logEvent("day_complete", { day_complete:d, day_complete_time:now(), last_day_complete_date:gameState.last_day_complete_date });
+  saveState();
   if(d === 3) go("15_before_disappearance");
   else if(d === 5) go("19_survey_transition");
   else go("14_day_complete");
 }
+function canAdvanceToNextDay(){
+  if(DEV_MODE) return true;
+  const doneDate = gameState.last_day_complete_date || "";
+  const today = new Date().toISOString().slice(0,10);
+  return !!doneDate && doneDate !== today;
+}
 function renderDayComplete(){
+  const canNext = canAdvanceToNextDay();
+  const nextButton = canNext
+    ? `<button class="primary" onclick="advanceDay()">${esc(t("continue"))}</button>`
+    : (DEV_MODE ? `<button class="primary" onclick="advanceDay()">${esc(t("devNext"))}</button>` : `<p class="small">${esc(t("comeBack"))}</p>`);
   screenShell(`
     <div class="center">
       <h2>${esc(t("dayCompleteTitle"))}</h2>
       <p>${esc(t("comeBack"))}</p>
       <div class="pet-stage">${characterImg("sleep","sleep smallish")}</div>
-      ${DEV_MODE ? `<button class="primary" onclick="advanceDay()">${esc(t("devNext"))}</button>` : `<p class="small">${esc(t("comeBack"))}</p>`}
+      ${nextButton}
     </div>`);
 }
-function advanceDay(){ gameState.day = Math.min(5, (gameState.day || 1) + 1); gameState.screen = "09_day_home"; logEvent("dev_advance_day", { day:gameState.day }); saveState(); render(); }
-function renderBeforeDisappearance(){
-  logEvent("before_disappearance_time", { before_disappearance_time:now(), day3_complete:true });
-  screenShell(`
-    <div class="center">
-      <h2>${esc(t("beforeLossTitle"))}</h2>
-      <p class="lead">${esc(replaceName(t("beforeLossText")))}</p>
-      <div class="pet-stage">${characterImg("sad","sad smallish")}</div>
-      <button class="dangerless" onclick="go('16_disappearance')">${esc(t("stayClose"))}</button>
-    </div>`);
+function advanceDay(){
+  gameState.day = Math.min(5, (gameState.day || 1) + 1);
+  gameState.screen = "09_day_home";
+  gameState.last_day_advance_time = now();
+  logEvent(DEV_MODE ? "dev_advance_day" : "advance_day", { day:gameState.day, last_day_advance_time:gameState.last_day_advance_time });
+  saveState();
+  render();
 }
 function renderDisappearance(){
   if(!gameState.disappearance_time){ gameState.disappearance_time = now(); logEvent("disappearance_reached", { disappearance_reached:true, disappearance_time:gameState.disappearance_time }); saveState(); }
@@ -3727,10 +3750,17 @@ function renderSurveyTransition(){
       <div class="pet-stage">${characterImg("sleep","sleep smallish")}</div>
       <button class="accent" onclick="openSurvey()">${esc(t("goSurvey"))}</button>
       <p class="small">${esc(t("urlNote"))}</p>
+      ${DEV_MODE && !isSurveyUrlReady() ? `<p class="small">管理者確認：GoogleフォームURLが未設定です。画面下の「フォームURL設定」またはコード上部の SURVEY_URL を設定してください。</p>` : ""}
     </div>`);
 }
 function openSurvey(){
-  const url = new URL(SURVEY_URL, location.href);
+  const baseUrl = getSurveyUrl();
+  if(!/^https?:\/\//.test(baseUrl) || baseUrl.includes("xxxxxxxx")){
+    showToast("GoogleフォームURLを設定してください。管理者確認では下部の『フォームURL設定』から一時設定できます。");
+    logEvent("survey_url_missing", { survey_url:baseUrl || "", needs_setup:true });
+    return;
+  }
+  const url = new URL(baseUrl, location.href);
   url.searchParams.set("research_id", gameState.research_id || "");
   url.searchParams.set("condition_id", gameState.condition_id || "");
   url.searchParams.set("identity_condition_id", gameState.identity_condition_id || "");
@@ -3740,27 +3770,202 @@ function openSurvey(){
   url.searchParams.set("persona_character_id", getPersonalityCharacterId() || "");
   url.searchParams.set("character_id", gameState.character_id || "");
   url.searchParams.set("language", gameState.language || "ja");
-  gameState.survey_url_clicked = now(); logEvent("survey_url_clicked", { survey_opened:true, survey_url:String(url) }); saveState();
+  gameState.survey_url_clicked = now();
+  logEvent("survey_url_clicked", { survey_opened:true, survey_url:String(url) });
+  saveState();
   window.open(String(url), "_blank", "noopener");
   go("20_end");
 }
 function renderEnd(){ screenShell(`<div class="center"><h2>${esc(t("finish"))}</h2><p class="lead">ありがとうございました。</p><button class="soft" onclick="downloadLog('csv')">${esc(t("downloadCsv"))}</button></div>`); }
+
+
+/* ===========================================================
+   ADMIN：動作確認・ログ集計・3日目以降の確認用
+   参加者画面には出さず、?admin=1 または ?dev=1 の時だけ使います。
+   =========================================================== */
+function adminEnsureTestState(){
+  if(!DEV_MODE) return false;
+  if(!gameState.language) gameState.language = "ja";
+  if(!gameState.research_id) gameState.research_id = randomId();
+  gameState.explanation_viewed = true;
+  gameState.consent = true;
+  gameState.start_time = gameState.start_time || now();
+  gameState.start_date = gameState.start_date || new Date().toISOString().slice(0,10);
+  gameState.condition_id = gameState.condition_id || randomCondition();
+  gameState.identity_condition_id = gameState.identity_condition_id || randomIdentityCondition();
+  if(!gameState.macaron_id || !gameState.character_id){
+    const m = MACARONS[0];
+    gameState.macaron_color = m.color;
+    gameState.macaron_id = m.id;
+    gameState.character_id = m.character_id;
+  }
+  gameState.character_name = gameState.character_name || "テスト";
+  return true;
+}
+function adminStartTest(){
+  if(!adminEnsureTestState()) return;
+  gameState.day = gameState.day || 1;
+  gameState.screen = "09_day_home";
+  logEvent("admin_start_test_state", { day:gameState.day, condition_id:gameState.condition_id, identity_condition_id:gameState.identity_condition_id });
+  saveState();
+  render();
+}
+function adminFillCurrentDayActions(){
+  if(!adminEnsureTestState()) return;
+  const d = String(gameState.day || 1);
+  gameState.dayActions[d] = gameState.dayActions[d] || {};
+  ["food_choice","outing_choice","poop_clean","petting"].forEach(k => gameState.dayActions[d][k] = true);
+  gameState.affection = Math.max(gameState.affection || 0, Math.min(100, (gameState.affection || 0) + 20));
+  logEvent("admin_fill_current_day_actions", { day:gameState.day, actions:Object.keys(gameState.dayActions[d]).join(",") });
+  saveState();
+  render();
+}
+function adminCompleteToday(){
+  if(!adminEnsureTestState()) return;
+  adminFillCurrentDayActions();
+  completeCurrentDay();
+}
+function adminJumpDay(day){
+  if(!adminEnsureTestState()) return;
+  gameState.day = Math.max(1, Math.min(5, Number(day) || 1));
+  if(gameState.day >= 4){
+    gameState.regenerated = true;
+    gameState.regeneration_time = gameState.regeneration_time || now();
+  }
+  gameState.screen = "09_day_home";
+  logEvent("admin_jump_day", { day:gameState.day, regenerated:!!gameState.regenerated });
+  saveState();
+  render();
+}
+function adminJumpScreen(screen, day){
+  if(!adminEnsureTestState()) return;
+  if(day) gameState.day = day;
+  if(["17_regeneration_wait","18_regeneration","19_survey_transition"].includes(screen)){
+    gameState.regenerated = true;
+  }
+  gameState.screen = screen;
+  logEvent("admin_jump_screen", { screen, day:gameState.day, regenerated:!!gameState.regenerated });
+  saveState();
+  render();
+}
+function adminSetSurveyUrl(){
+  if(!DEV_MODE) return;
+  const current = getSurveyUrl();
+  const input = prompt("管理者確認用のGoogleフォームURLを入れてください。\n本番ではコード上部の SURVEY_URL も差し替えてください。", current && !current.includes("xxxxxxxx") ? current : "");
+  if(input === null) return;
+  const value = input.trim();
+  if(value) localStorage.setItem(ADMIN_SURVEY_URL_KEY, value);
+  else localStorage.removeItem(ADMIN_SURVEY_URL_KEY);
+  logEvent("admin_set_survey_url", { survey_url_set:!!value });
+  showToast(value ? "フォームURLを一時設定しました。" : "フォームURLの一時設定を消しました。");
+  saveState();
+  updateDevPanel();
+}
+function countLogEvents(type){
+  return event_log.filter(r => r.event_type === type).length;
+}
+function sumLogDetail(keys){
+  return event_log.reduce((sum,r)=>{
+    const d = r.details || {};
+    for(const k of keys){
+      const v = Number(d[k]);
+      if(Number.isFinite(v)) return sum + v;
+    }
+    return sum;
+  },0);
+}
+function latestLogEvent(type){
+  const rows = event_log.filter(r => r.event_type === type);
+  return rows[rows.length-1] || null;
+}
+function buildAdminSummary(){
+  const dayReached = Math.max(gameState.day || 1, ...event_log.map(r => Number(r.day || 0)).filter(Boolean));
+  const actionTypes = ["food_choice","outing_choice","poop_clean","petting"];
+  const actionTotal = actionTypes.reduce((sum,k)=>sum+countLogEvents(k),0);
+  const disappear = !!latestLogEvent("disappearance_reached");
+  const regen = !!latestLogEvent("regeneration_time") || !!gameState.regenerated;
+  const surveyShown = !!latestLogEvent("survey_button_displayed") || !!gameState.survey_button_displayed;
+  const surveyClicked = !!latestLogEvent("survey_url_clicked") || !!gameState.survey_url_clicked;
+  const foodChoices = event_log.filter(r=>r.event_type==="food_choice").map(r=>r.details?.food_choice).filter(Boolean).join(" / ");
+  const outingChoices = event_log.filter(r=>r.event_type==="outing_choice").map(r=>r.details?.outing_choice).filter(Boolean).join(" / ");
+  return {
+    research_id: gameState.research_id || "",
+    condition_id: gameState.condition_id || "",
+    identity_condition_id: gameState.identity_condition_id || "",
+    original_character_id: gameState.character_id || "",
+    display_character_id: getDisplayCharacterId() || "",
+    motion_character_id: getMotionCharacterId() || "",
+    persona_character_id: getPersonalityCharacterId() || "",
+    day_reached: dayReached,
+    screen: gameState.screen || "",
+    log_count: event_log.length,
+    action_total: actionTotal,
+    food_count: countLogEvents("food_choice"),
+    outing_count: countLogEvents("outing_choice"),
+    clean_count: countLogEvents("poop_clean"),
+    petting_count: countLogEvents("petting"),
+    heart_total: sumLogDetail(["heart_count"]),
+    poop_total: sumLogDetail(["poop_clean_count"]),
+    disappearance_reached: disappear,
+    regeneration_reached: regen,
+    survey_button_displayed: surveyShown,
+    survey_clicked: surveyClicked,
+    survey_url_ready: isSurveyUrlReady(),
+    log_endpoint_ready: isLogEndpointReady(),
+    food_choices: foodChoices,
+    outing_choices: outingChoices
+  };
+}
+function showAdminSummary(){
+  if(!DEV_MODE) return;
+  const s = buildAdminSummary();
+  const rows = Object.entries(s).map(([k,v]) => `<tr><th style="text-align:left;padding:7px 10px;border-bottom:1px solid rgba(117,96,150,.18)">${esc(k)}</th><td style="padding:7px 10px;border-bottom:1px solid rgba(117,96,150,.18)">${esc(String(v))}</td></tr>`).join("");
+  const recent = event_log.slice(-12).map(r => `<tr><td>${esc(r.timestamp)}</td><td>${esc(r.event_type)}</td><td>${esc(String(r.day || ""))}</td><td>${esc(flattenDetails(r.details || {}))}</td></tr>`).join("");
+  screenShell(`
+    <h2>管理者ログ集計</h2>
+    <p class="lead">現在この端末に保存されているログの確認です。参加者全員分を見るには、Google Apps Script の LOG_ENDPOINT 連携が必要です。</p>
+    <div class="card" style="overflow:auto"><table style="width:100%;border-collapse:collapse">${rows}</table></div>
+    <h3>直近ログ</h3>
+    <div class="card" style="overflow:auto"><table style="width:100%;border-collapse:collapse"><tr><th>time</th><th>event</th><th>day</th><th>details</th></tr>${recent}</table></div>
+    <div class="row right" style="margin-top:16px">
+      <button class="soft" onclick="downloadLog('csv')">CSV</button>
+      <button class="soft" onclick="downloadLog('json')">JSON</button>
+      <button class="primary" onclick="render()">戻る</button>
+    </div>`);
+}
 
 function updateDevPanel(){
   const panel = document.getElementById("devPanel");
   // 参加者画面では非表示。管理者確認URL（?admin=1 または ?dev=1）の時だけ表示します。
   if(!DEV_MODE){ panel.classList.add("hidden"); return; }
   panel.classList.remove("hidden");
+  const surveyMark = isSurveyUrlReady() ? "フォームOK" : "フォーム未設定";
+  const logMark = isLogEndpointReady() ? "Sheets連携OK" : "Sheets未連携";
   panel.innerHTML = `
-    <span>ADMIN確認 / screen: ${esc(gameState.screen)} / log: ${event_log.length} / identity: ${esc(gameState.identity_condition_id || "未設定")}</span>
-    <button onclick="downloadLog('csv')">${esc(t("downloadCsv"))}</button>
-    <button onclick="downloadLog('json')">${esc(t("downloadJson"))}</button>
-    <button onclick="showLogPreview()">${esc(t("logPreview"))}</button>
-    <button onclick="resetGame()">${esc(t("reset"))}</button>
-    <span>動作確認用条件固定</span>
-    <button onclick="setIdentityCondition('A1')">①固定</button>
-    <button onclick="setIdentityCondition('A2')">②固定</button>
-    <button onclick="setIdentityCondition('A3')">③固定</button>`;
+    <span>ADMIN / screen:${esc(gameState.screen)} / day:${esc(gameState.day || "-")} / log:${event_log.length} / ${esc(surveyMark)} / ${esc(logMark)}</span>
+    <button onclick="adminStartTest()">テスト開始</button>
+    <button onclick="adminFillCurrentDayActions()">今日の世話OK</button>
+    <button onclick="adminCompleteToday()">今日を完了</button>
+    <button onclick="advanceDay()">次の日</button>
+    <button onclick="adminJumpDay(1)">1日目</button>
+    <button onclick="adminJumpDay(2)">2日目</button>
+    <button onclick="adminJumpDay(3)">3日目</button>
+    <button onclick="adminJumpScreen('15_before_disappearance',3)">3日目終了</button>
+    <button onclick="adminJumpScreen('16_disappearance',3)">消失</button>
+    <button onclick="adminJumpScreen('18_regeneration',4)">再生成</button>
+    <button onclick="adminJumpDay(4)">4日目</button>
+    <button onclick="adminJumpDay(5)">5日目</button>
+    <button onclick="adminJumpScreen('19_survey_transition',5)">最終アンケート</button>
+    <button onclick="showAdminSummary()">ログ集計</button>
+    <button onclick="downloadLog('csv')">CSV</button>
+    <button onclick="downloadLog('json')">JSON</button>
+    <button onclick="showLogPreview()">ログ確認</button>
+    <button onclick="adminSetSurveyUrl()">フォームURL設定</button>
+    <button onclick="resetGame()">リセット</button>
+    <span>条件固定</span>
+    <button onclick="setIdentityCondition('A1')">①</button>
+    <button onclick="setIdentityCondition('A2')">②</button>
+    <button onclick="setIdentityCondition('A3')">③</button>`;
 }
 function setIdentityCondition(id){
   if(!IDENTITY_CONDITIONS[id]) return;
