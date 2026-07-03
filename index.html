@@ -1300,6 +1300,27 @@
   <div id="devPanel" class="dev-panel hidden"></div>
 
 <script>
+const LOG_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyS9EwTNQL1CM_Z09ZuHhR6zajrVE0Yo8VjJC7zfNIvg4REWtT5DcIyDLMZXp0ETW92/exec";
+
+function sendLog(payload) {
+  const body = {
+    ...payload,
+    user_agent: navigator.userAgent,
+    app_version: typeof APP_VERSION !== "undefined" ? APP_VERSION : "research-care-game-v1"
+  };
+
+  fetch(LOG_ENDPOINT_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+    body: JSON.stringify(body)
+  }).catch(function(error) {
+    console.log("ログ送信エラー", error);
+  });
+}
+  
 /* ===========================================================
    4,320N｜デジタルキャラクターとの5日間お世話ゲーム
    GitHub Pages用 implementation / single-file HTML / admin randomization
